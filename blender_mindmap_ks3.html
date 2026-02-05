@@ -1,0 +1,869 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Blender KS3 – Explore Mind Map</title>
+  <meta name="description" content="Interactive mind map for KS3: explore Blender topics and definitions at your own pace." />
+  <style>
+    :root{
+      --bg0:#050713;
+      --bg1:#0a0f26;
+      --panel:#0f1736cc;
+      --panel2:#0b112acc;
+      --text:#f2f5ff;
+      --muted:#b7c0e6;
+      --line:rgba(255,255,255,.14);
+      --shadow: 0 16px 40px rgba(0,0,0,.45);
+      --r:18px;
+
+      --blue:#7aa7ff;
+      --mint:#7cf6c5;
+      --amber:#ffd27a;
+      --pink:#ff7a9a;
+      --violet:#b69cff;
+
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --focus: 0 0 0 4px rgba(122,167,255,.35);
+
+      --drawerH: 168px;          /* compact default */
+      --drawerHOpen: 320px;      /* expanded */
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 10% 10%, rgba(122,167,255,.18), transparent 60%),
+        radial-gradient(900px 550px at 85% 18%, rgba(124,246,197,.16), transparent 55%),
+        radial-gradient(900px 650px at 65% 92%, rgba(255,122,154,.12), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      line-height:1.35;
+      overflow:hidden;
+    }
+
+    /* ---------- Design principles baked in ----------
+      1) Don’t cover the primary task: mind map stays the main surface.
+      2) Progressive disclosure: short definition by default, more on expand.
+      3) Minimise split-attention: definition stays near bottom edge, not side-by-side.
+      4) Big touch targets & clear hierarchy: large nodes + simple controls.
+      5) Responsive: on small screens the drawer becomes taller but still usable.
+    -------------------------------------------------- */
+
+    header{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(12px);
+      background: linear-gradient(180deg, rgba(5,7,19,.92), rgba(5,7,19,.62));
+      border-bottom:1px solid var(--line);
+    }
+    .wrap{max-width:1200px; margin:0 auto; padding:14px 16px;}
+    .top{
+      display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+    }
+    .brand{display:flex; gap:12px; align-items:center; min-width:260px;}
+    .logo{
+      width:46px; height:46px; border-radius:16px;
+      background: linear-gradient(135deg, rgba(122,167,255,.92), rgba(124,246,197,.92));
+      display:grid; place-items:center;
+      color:#081026;
+      font-weight:900;
+      box-shadow: var(--shadow);
+    }
+    .brand h1{margin:0; font-size:18px}
+    .brand p{margin:4px 0 0; color:var(--muted); font-size:13px}
+    .bar{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+    .btn{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:800;
+      transition: transform .05s ease, background .2s ease, border-color .2s ease;
+      user-select:none;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .btn:hover{background: rgba(255,255,255,.10)}
+    .btn:active{transform: translateY(1px)}
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(122,167,255,.30), rgba(124,246,197,.20));
+      border-color: rgba(124,246,197,.35);
+    }
+    .btn.alt{
+      background: rgba(255,210,122,.10);
+      border-color: rgba(255,210,122,.32);
+    }
+    .btn:focus{outline:none; box-shadow: var(--focus)}
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      color:var(--muted);
+      font-size:13px;
+      white-space:nowrap;
+    }
+    .kbd{
+      font-family:var(--mono);
+      font-size:13px;
+      padding:4px 8px;
+      border-radius:10px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.22);
+      color:var(--text);
+      white-space:nowrap;
+    }
+
+    /* Fullscreen canvas area */
+    .stage{
+      position:relative;
+      height: calc(100vh - 78px);
+      max-width:1200px;
+      margin:0 auto;
+      padding:14px 16px 16px;
+    }
+    .canvasWrap{
+      position:absolute;
+      left:16px; right:16px;
+      top:14px;
+      bottom: calc(var(--drawerH) + 18px);
+      border-radius: var(--r);
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.14);
+      overflow:hidden;
+      box-shadow: var(--shadow);
+    }
+
+    body.drawer-open .canvasWrap{
+      bottom: calc(var(--drawerHOpen) + 18px);
+    }
+
+    /* Map HUD */
+    .hud{
+      position:absolute;
+      left:12px; top:12px;
+      display:flex; gap:10px; flex-wrap:wrap;
+      z-index:10;
+      pointer-events:auto;
+    }
+    .smallBtn{
+      padding:10px 12px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(15,23,54,.62);
+      color:var(--text);
+      cursor:pointer;
+      font-weight:800;
+      user-select:none;
+    }
+    .smallBtn:hover{background: rgba(255,255,255,.08)}
+    .smallBtn:focus{outline:none; box-shadow: var(--focus)}
+
+    /* Map layers */
+    #viewport{position:absolute; inset:0; touch-action:none;}
+    #links{
+      position:absolute; inset:0;
+      width:100%; height:100%;
+      pointer-events:none;
+    }
+    #nodes{
+      position:absolute; inset:0;
+      transform-origin: 0 0;
+    }
+    .node{
+      position:absolute;
+      padding:10px 12px;
+      border-radius: 16px;
+      border:1px solid var(--line);
+      background: rgba(15,23,54,.72);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 10px 26px rgba(0,0,0,.35);
+      min-width: 170px;
+      max-width: 220px;
+      cursor:pointer;
+      user-select:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .node:hover{background: rgba(255,255,255,.06)}
+    .node:focus{outline:none; box-shadow: var(--focus)}
+    .node .t{font-weight:900; letter-spacing:.2px; font-size:14px;}
+    .node .sub{color:var(--muted); font-size:12px; margin-top:3px; font-weight:700;}
+    .node .badge{
+      width:26px; height:26px;
+      border-radius: 12px;
+      border:1px solid var(--line);
+      display:grid; place-items:center;
+      background: rgba(0,0,0,.18);
+      font-family: var(--mono);
+      font-weight:900;
+      color: rgba(242,245,255,.85);
+      flex:0 0 auto;
+    }
+    .node.root{
+      background: linear-gradient(135deg, rgba(122,167,255,.26), rgba(124,246,197,.16));
+      border-color: rgba(124,246,197,.32);
+      min-width: 190px;
+    }
+    .node.selected{
+      box-shadow: 0 0 0 4px rgba(255,210,122,.18), 0 16px 40px rgba(0,0,0,.55);
+      border-color: rgba(255,210,122,.38);
+    }
+    .node[data-cat="basics"]{border-color: rgba(122,167,255,.28)}
+    .node[data-cat="build"]{border-color: rgba(124,246,197,.28)}
+    .node[data-cat="create"]{border-color: rgba(255,210,122,.28)}
+    .node[data-cat="extras"]{border-color: rgba(182,156,255,.28)}
+    .node[data-cat="careers"]{border-color: rgba(255,122,154,.28)}
+
+    /* Bottom drawer (small by default) */
+    .drawer{
+      position:absolute;
+      left:16px; right:16px;
+      bottom:16px;
+      height: var(--drawerH);
+      border-radius: var(--r);
+      border:1px solid var(--line);
+      background: rgba(15,23,54,.62);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
+    body.drawer-open .drawer{height: var(--drawerHOpen);}
+
+    .drawerTop{
+      padding:12px 14px 10px;
+      border-bottom:1px solid var(--line);
+      background: rgba(11,17,42,.55);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .grab{
+      width:40px; height:6px;
+      border-radius:999px;
+      background: rgba(255,255,255,.18);
+      margin:0 auto 10px;
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .drawerTitle{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.2px;
+      font-weight:900;
+    }
+    .drawerSub{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:800;
+    }
+    .drawerBtns{
+      display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+    }
+    .iconBtn{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:900;
+      user-select:none;
+    }
+    .iconBtn:hover{background: rgba(255,255,255,.10)}
+    .iconBtn:focus{outline:none; box-shadow: var(--focus)}
+
+    .drawerBody{
+      padding:12px 14px 14px;
+      display:grid;
+      grid-template-columns: 1fr 360px;
+      gap:12px;
+      height:100%;
+      overflow:auto;
+    }
+    body:not(.drawer-open) .drawerBody{
+      grid-template-columns: 1fr;
+    }
+
+    .def{
+      border:1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(0,0,0,.16);
+      padding:12px;
+    }
+    .def p{margin:0; color:var(--muted); font-size:14px}
+    .def p strong{color:var(--text)}
+    .try{
+      border:1px solid rgba(124,246,197,.28);
+      border-radius: 16px;
+      background: rgba(124,246,197,.08);
+      padding:12px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .try strong{color:var(--text)}
+    .try ul{margin:8px 0 0; padding-left:18px; color:var(--muted); font-size:14px}
+    .try li{margin:6px 0}
+
+    .tools{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      margin-top:10px;
+    }
+    .search{
+      flex:1;
+      min-width: 220px;
+      padding:12px 12px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      color: var(--text);
+      font-weight:800;
+      outline:none;
+    }
+    .search:focus{box-shadow: var(--focus)}
+    .help{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    @media (max-width: 980px){
+      body{overflow:auto;}
+      .stage{height:auto; padding-bottom: 340px;}
+      .canvasWrap{position:relative; bottom:auto; height: 62vh; margin-bottom:12px;}
+      .drawer{position:relative; height:auto;}
+      .drawerBody{grid-template-columns:1fr;}
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .node{transition:none}
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <div class="logo">🗺️</div>
+        <div>
+          <h1>Explore Blender (Mind Map)</h1>
+          <p>Click what interests you. Read a short definition. Try a mini-task.</p>
+        </div>
+      </div>
+      <div class="bar">
+        <a class="btn" href="index.html" title="Back to the main tutorial">← Back</a>
+        <button class="btn alt" id="btnExpandAll" type="button">Expand all</button>
+        <button class="btn" id="btnCollapseAll" type="button">Collapse</button>
+        <button class="btn primary" id="btnResetView" type="button">Reset view</button>
+        <div class="chip">Drag to pan • <span class="kbd">Ctrl</span> + wheel to zoom</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="stage">
+  <div class="canvasWrap" id="viewport">
+    <div class="hud">
+      <button class="smallBtn" id="zoomIn" type="button">Zoom +</button>
+      <button class="smallBtn" id="zoomOut" type="button">Zoom −</button>
+      <button class="smallBtn" id="centerOnSelected" type="button">Center on selected</button>
+    </div>
+    <svg id="links" aria-hidden="true"></svg>
+    <div id="nodes" aria-label="Mind map nodes"></div>
+  </div>
+
+  <div class="drawer" aria-label="Definition drawer">
+    <div class="drawerTop">
+      <div style="flex:1; min-width: 220px;">
+        <div class="grab" aria-hidden="true"></div>
+        <h2 class="drawerTitle" id="defName">Blender</h2>
+        <div class="drawerSub" id="defSub">Short definition + a mini task</div>
+      </div>
+      <div class="drawerBtns">
+        <button class="iconBtn" id="btnToggleDrawer" type="button" title="Make this panel bigger or smaller">Expand</button>
+      </div>
+    </div>
+
+    <div class="drawerBody">
+      <div class="def">
+        <p id="defText"><strong>Blender</strong> is a free tool for making 3D models, animations and images.</p>
+        <div class="tools">
+          <input class="search" id="search" type="text" placeholder="Search topics (e.g. modelling, render, animation)" />
+          <div class="help"><span class="kbd">Esc</span> clears</div>
+        </div>
+      </div>
+
+      <div class="try" id="tryBox">
+        <strong>Try it (1–3 minutes)</strong>
+        <ul id="defList">
+          <li>Click boxes on the map.</li>
+          <li>Click the +/− to expand/collapse.</li>
+          <li>Use search to highlight topics.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const $ = (sel, el=document) => el.querySelector(sel);
+  const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+
+  const data = {
+    id: "root",
+    title: "Blender (Software)",
+    cat: "basics",
+    subtitle: "Free 3D tool",
+    def: "Blender is a free, open‑source program for making 3D models, animations, and images.",
+    try: [
+      "Open Blender and find: 3D Viewport, Outliner, Properties.",
+      "Orbit around the scene and select an object."
+    ],
+    children: [
+      {
+        id: "info",
+        title: "General info",
+        cat: "basics",
+        subtitle: "What is it?",
+        def: "Blender is used by hobbyists and professionals. It can create 3D objects, animations, and even video effects.",
+        try: ["Find the version number in Blender (Help → About)."],
+        children: [
+          { id:"def", title:"Definition", cat:"basics", subtitle:"Simple meaning", def:"A free and open‑source 3D suite: one app with lots of 3D tools.", try:["Explain Blender in one sentence to a partner."], children:[] },
+          { id:"dev", title:"Developer", cat:"basics", subtitle:"Who makes it?", def:"Blender is supported by the Blender Foundation and a big community of developers.", try:["Look up 'Blender Foundation' later if curious."], children:[] },
+          { id:"lic", title:"License", cat:"basics", subtitle:"Why it's free", def:"Open‑source means people can study and improve the code. Blender is free to use.", try:["Why might open‑source be useful in schools?"], children:[] },
+          { id:"plat", title:"Platforms", cat:"basics", subtitle:"Where it runs", def:"Blender runs on Windows, macOS and Linux.", try:["Check which OS your computer uses."], children:[] }
+        ]
+      },
+      {
+        id: "features",
+        title: "Core features",
+        cat: "build",
+        subtitle: "What can it do?",
+        def: "Blender has tools for modelling, materials, animation, simulation and rendering.",
+        try: ["Pick ONE feature to explore first."],
+        children: [
+          { id:"model", title:"Modelling", cat:"build", subtitle:"Make shapes", def:"Modelling is building 3D shapes (like a bowling pin) using tools like extrude and scale.", try:["In Edit Mode, press E then S to shape a pin."], children:[] },
+          { id:"render", title:"Rendering", cat:"create", subtitle:"Make pictures", def:"Rendering turns your 3D scene into a final image (like taking a photo in 3D).", try:["Switch viewport shading and notice the difference."], children:[] },
+          { id:"sim", title:"Simulation", cat:"extras", subtitle:"Physics", def:"Simulation can add physics: cloth, smoke, liquids, rigid bodies (objects that fall and bounce).", try:["Ask teacher about 'rigid body' later."], children:[] },
+          { id:"anim2d", title:"Animation & 2D", cat:"create", subtitle:"Move & draw", def:"Animation moves objects over time. Blender also has 2D drawing tools (Grease Pencil).", try:["Move an object and insert a keyframe (teacher demo)."], children:[] },
+          { id:"post", title:"Post‑production", cat:"extras", subtitle:"Edit & effects", def:"Post‑production means editing and adding effects to images/video (compositing).", try:["Find the 'Compositing' workspace."], children:[] }
+        ]
+      },
+      {
+        id:"pipeline",
+        title:"Pipeline",
+        cat:"extras",
+        subtitle:"Working with others",
+        def:"A pipeline is the order of jobs in a project: modelling → materials → lighting → render → edit.",
+        try:["In your bowling alley: what comes first, second, third?"], 
+        children:[
+          { id:"formats", title:"File formats", cat:"extras", subtitle:"Import/export", def:"Blender can import/export many file types so it can work with other apps and games.", try:["Find File → Import and File → Export."], children:[] },
+          { id:"collections", title:"Collections", cat:"extras", subtitle:"Organise", def:"Collections help you organise your scene (like folders). Great for lots of pins!", try:["Put all pins into a collection called 'Pins'."], children:[] }
+        ]
+      },
+      {
+        id:"ecosystem",
+        title:"Ecosystem",
+        cat:"basics",
+        subtitle:"Add-ons & community",
+        def:"Blender has a big community: tutorials, add-ons, open movies, and benchmarks.",
+        try:["Find one Blender tutorial at home (with permission)."],
+        children:[
+          { id:"studio", title:"Blender Studio", cat:"basics", subtitle:"Open projects", def:"Blender Studio releases open projects (films/assets) to help people learn and test Blender.", try:["Look up 'Blender open movies' later."], children:[] },
+          { id:"ext", title:"Extensions", cat:"extras", subtitle:"Add-ons/themes", def:"Add-ons are extra tools. Themes change colours. Use teacher-approved add-ons only.", try:["Find Preferences → Add-ons."], children:[] },
+          { id:"bench", title:"Benchmarks", cat:"extras", subtitle:"Speed tests", def:"Benchmarks compare how fast computers can render.", try:["Explain what a benchmark is."], children:[] }
+        ]
+      },
+      {
+        id:"careers",
+        title:"Careers",
+        cat:"careers",
+        subtitle:"Jobs that use 3D",
+        def:"3D skills can lead to jobs in games, film, design, engineering and more.",
+        try:["Pick a job and write one thing they might make in Blender."],
+        children:[
+          { id:"vfx", title:"3D / VFX artist", cat:"careers", subtitle:"Film effects", def:"Creates 3D objects/effects for film/TV (creatures, sets, explosions).", try:["What effect would you add to a scene?"], children:[] },
+          { id:"vr", title:"VR / AR designer", cat:"careers", subtitle:"Virtual worlds", def:"Builds 3D experiences for VR and AR.", try:["Name one VR app you’ve seen."], children:[] },
+          { id:"anim", title:"Animator", cat:"careers", subtitle:"Make things move", def:"Makes characters and objects move in a believable way.", try:["What makes motion look 'real'?"], children:[] },
+          { id:"arch", title:"Architectural designer", cat:"careers", subtitle:"Buildings", def:"Visualises buildings and rooms before they’re built.", try:["Design your dream bedroom layout."], children:[] },
+          { id:"prog", title:"3D programmer", cat:"careers", subtitle:"Code + 3D", def:"Writes code for games/simulations that use 3D models.", try:["How does programming connect to 3D?"], children:[] }
+        ]
+      }
+    ]
+  };
+
+  const X_GAP = 260, Y_GAP = 92, PAD_X = 60;
+  const expanded = new Set(["root","info","features","ecosystem","careers"]);
+  let selectedId = "root";
+  let searchQuery = "";
+
+  let scale = 1.0, tx = 0, ty = 0;
+  let isPanning = false;
+  let panStart = {x:0,y:0, tx:0, ty:0};
+
+  const nodesEl = $("#nodes");
+  const linksEl = $("#links");
+  const viewportEl = $("#viewport");
+
+  function flatten(root){
+    const out = [];
+    function walk(node, parent=null, depth=0){
+      out.push({node, parent, depth});
+      (node.children || []).forEach(ch => walk(ch, node, depth+1));
+    }
+    walk(root);
+    return out;
+  }
+
+  function computeLayout(){
+    const items = flatten(data);
+    const byId = new Map(items.map(x => [x.node.id, x]));
+    const visible = new Set();
+
+    function isVisible(id){
+      if(id === "root") return true;
+      const it = byId.get(id);
+      if(!it || !it.parent) return true;
+      let p = it.parent;
+      while(p){
+        if(!expanded.has(p.id)) return false;
+        if(p.id === "root") break;
+        p = byId.get(p.id)?.parent || null;
+      }
+      return true;
+    }
+    items.forEach(x => { if(isVisible(x.node.id)) visible.add(x.node.id); });
+
+    const levels = new Map();
+    items.forEach(x => {
+      if(!visible.has(x.node.id)) return;
+      if(!levels.has(x.depth)) levels.set(x.depth, []);
+      levels.get(x.depth).push(x.node.id);
+    });
+
+    const pos = new Map();
+    pos.set("root", {x: PAD_X, y: 240});
+
+    const lvl1 = levels.get(1) || [];
+    const startY = 120;
+    lvl1.forEach((id, i) => pos.set(id, {x: PAD_X + X_GAP, y: startY + i*Y_GAP}));
+
+    function placeChildren(parentId){
+      const parent = byId.get(parentId)?.node;
+      if(!parent) return;
+      const kids = (parent.children || []).filter(ch => visible.has(ch.id));
+      if(!kids.length) return;
+
+      const p = pos.get(parentId) || {x:PAD_X, y:120};
+      const depth = byId.get(parentId)?.depth || 0;
+      const x = PAD_X + (depth+1) * X_GAP;
+
+      const totalH = (kids.length - 1) * Y_GAP;
+      const baseY = p.y - totalH/2;
+      kids.forEach((ch, i) => pos.set(ch.id, {x, y: baseY + i*Y_GAP}));
+      kids.forEach(ch => placeChildren(ch.id));
+    }
+    lvl1.forEach(id => placeChildren(id));
+
+    if(lvl1.length){
+      const ys = lvl1.map(id => pos.get(id).y);
+      const mid = (Math.min(...ys) + Math.max(...ys))/2;
+      const r = pos.get("root");
+      pos.set("root", {...r, y: mid});
+    }
+
+    return {pos, visible};
+  }
+
+  function catColor(cat){
+    switch(cat){
+      case "basics": return "rgba(122,167,255,.30)";
+      case "build": return "rgba(124,246,197,.26)";
+      case "create": return "rgba(255,210,122,.26)";
+      case "extras": return "rgba(182,156,255,.24)";
+      case "careers": return "rgba(255,122,154,.24)";
+      default: return "rgba(255,255,255,.08)";
+    }
+  }
+
+  function applyTransform(){
+    nodesEl.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    linksEl.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    linksEl.style.transformOrigin = "0 0";
+  }
+  function clampScale(s){ return Math.max(0.55, Math.min(1.75, s)); }
+  function zoomBy(factor, cx, cy){
+    const prev = scale;
+    scale = clampScale(scale * factor);
+    const dx = cx - tx;
+    const dy = cy - ty;
+    tx = cx - dx * (scale/prev);
+    ty = cy - dy * (scale/prev);
+    applyTransform();
+  }
+  function resetView(){ scale = 1.0; tx = 0; ty = 0; applyTransform(); }
+  function centerOnSelected(){
+    const el = document.querySelector(`.node[data-id="${selectedId}"]`);
+    if(!el) return;
+    const rect = el.getBoundingClientRect();
+    const vp = viewportEl.getBoundingClientRect();
+    const cx = vp.left + vp.width/2;
+    const cy = vp.top + vp.height/2;
+    const nodeCx = rect.left + rect.width/2;
+    const nodeCy = rect.top + rect.height/2;
+    tx += (cx - nodeCx);
+    ty += (cy - nodeCy);
+    applyTransform();
+  }
+
+  function updateDefinition(id){
+    const items = flatten(data);
+    const node = items.find(x => x.node.id === id)?.node || data;
+
+    $("#defName").textContent = node.title || "Blender";
+    $("#defSub").textContent = (node.subtitle || "Short definition + a mini task");
+    $("#defText").innerHTML = "<strong>" + (node.title || "Blender") + "</strong> — " + (node.def || "Explore topics to learn Blender.");
+
+    const list = $("#defList");
+    list.innerHTML = "";
+    const tries = node.try || [];
+    if(tries.length){
+      tries.forEach(t => {
+        const li = document.createElement("li");
+        li.textContent = t;
+        list.appendChild(li);
+      });
+    }else{
+      const li = document.createElement("li");
+      li.textContent = "Click another topic to get a mini-task.";
+      list.appendChild(li);
+    }
+  }
+
+  function toggleExpand(id){
+    if(expanded.has(id)) expanded.delete(id);
+    else expanded.add(id);
+    render();
+  }
+  function selectNode(id){
+    selectedId = id;
+    updateDefinition(id);
+    render();
+  }
+
+  function render(){
+    const {pos, visible} = computeLayout();
+    const items = flatten(data).filter(x => visible.has(x.node.id));
+
+    nodesEl.innerHTML = "";
+    items.forEach(({node, parent}) => {
+      const p = pos.get(node.id);
+      if(!p) return;
+
+      const div = document.createElement("div");
+      div.className = "node" + (node.id === "root" ? " root" : "");
+      div.dataset.id = node.id;
+      div.dataset.cat = node.cat || "basics";
+      div.tabIndex = 0;
+
+      const hasKids = (node.children || []).length > 0;
+      const isOpen = expanded.has(node.id);
+      const badge = hasKids ? (isOpen ? "−" : "+") : "•";
+
+      const hay = (node.title + " " + (node.subtitle||"") + " " + (node.def||"")).toLowerCase();
+      const match = searchQuery && hay.includes(searchQuery.toLowerCase());
+      if(searchQuery && match){
+        div.style.borderColor = "rgba(255,210,122,.55)";
+        div.style.background = "linear-gradient(135deg, rgba(255,210,122,.14), " + catColor(node.cat) + ")";
+      }else{
+        div.style.background = "linear-gradient(135deg, " + catColor(node.cat) + ", rgba(15,23,54,.74))";
+      }
+
+      div.style.left = p.x + "px";
+      div.style.top = p.y + "px";
+
+      const left = document.createElement("div");
+      const t = document.createElement("div");
+      t.className = "t";
+      t.textContent = node.title;
+
+      const sub = document.createElement("div");
+      sub.className = "sub";
+      sub.textContent = node.subtitle || "";
+
+      left.appendChild(t);
+      if(node.subtitle) left.appendChild(sub);
+
+      const b = document.createElement("div");
+      b.className = "badge";
+      b.textContent = badge;
+
+      div.appendChild(left);
+      div.appendChild(b);
+
+      if(node.id === selectedId) div.classList.add("selected");
+
+      div.addEventListener("click", (e) => {
+        const clickedBadge = e.target.classList.contains("badge");
+        selectNode(node.id);
+        if(clickedBadge && hasKids) toggleExpand(node.id);
+      });
+      div.addEventListener("dblclick", () => { if(hasKids) toggleExpand(node.id); });
+      div.addEventListener("keydown", (e) => {
+        if(e.key === "Enter"){
+          e.preventDefault();
+          selectNode(node.id);
+          if(hasKids) toggleExpand(node.id);
+        }
+      });
+
+      nodesEl.appendChild(div);
+    });
+
+    // links
+    linksEl.innerHTML = "";
+    const vbW = viewportEl.clientWidth;
+    const vbH = viewportEl.clientHeight;
+    linksEl.setAttribute("viewBox", `0 0 ${vbW} ${vbH}`);
+
+    items.forEach(({node, parent}) => {
+      if(!parent) return;
+      const a = pos.get(parent.id);
+      const b = pos.get(node.id);
+      if(!a || !b) return;
+
+      const x1 = a.x + 210, y1 = a.y + 30;
+      const x2 = b.x, y2 = b.y + 30;
+      const cx1 = x1 + 70, cy1 = y1;
+      const cx2 = x2 - 70, cy2 = y2;
+
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`);
+      path.setAttribute("fill", "none");
+
+      const stroke = (node.cat === "build") ? "rgba(124,246,197,.35)"
+                  : (node.cat === "create") ? "rgba(255,210,122,.35)"
+                  : (node.cat === "extras") ? "rgba(182,156,255,.32)"
+                  : (node.cat === "careers") ? "rgba(255,122,154,.32)"
+                  : "rgba(122,167,255,.30)";
+
+      path.setAttribute("stroke", stroke);
+      path.setAttribute("stroke-width", "2.2");
+      path.setAttribute("stroke-linecap", "round");
+      linksEl.appendChild(path);
+    });
+
+    applyTransform();
+  }
+
+  function search(q){
+    searchQuery = q.trim();
+    if(!searchQuery){ render(); return; }
+
+    const items = flatten(data);
+    const byId = new Map(items.map(x => [x.node.id, x]));
+    const matches = items.filter(x => {
+      const hay = (x.node.title + " " + (x.node.subtitle||"") + " " + (x.node.def||"")).toLowerCase();
+      return hay.includes(searchQuery.toLowerCase());
+    });
+
+    matches.forEach(m => {
+      let p = m.parent;
+      while(p){
+        expanded.add(p.id);
+        p = byId.get(p.id)?.parent || null;
+      }
+    });
+
+    render();
+  }
+
+  // Pan/zoom
+  viewportEl.addEventListener("pointerdown", (e) => {
+    if(e.target.closest && e.target.closest(".node")) return;
+    isPanning = true;
+    viewportEl.setPointerCapture(e.pointerId);
+    panStart = {x:e.clientX, y:e.clientY, tx, ty};
+  });
+  viewportEl.addEventListener("pointermove", (e) => {
+    if(!isPanning) return;
+    tx = panStart.tx + (e.clientX - panStart.x);
+    ty = panStart.ty + (e.clientY - panStart.y);
+    applyTransform();
+  });
+  viewportEl.addEventListener("pointerup", (e) => {
+    isPanning = false;
+    try{ viewportEl.releasePointerCapture(e.pointerId); }catch(_){}
+  });
+  viewportEl.addEventListener("wheel", (e) => {
+    if(!e.ctrlKey) return;
+    e.preventDefault();
+    const vp = viewportEl.getBoundingClientRect();
+    const cx = e.clientX - vp.left;
+    const cy = e.clientY - vp.top;
+    const factor = (e.deltaY < 0) ? 1.10 : 0.90;
+    zoomBy(factor, cx, cy);
+  }, {passive:false});
+
+  $("#zoomIn").addEventListener("click", () => zoomBy(1.12, viewportEl.clientWidth/2, viewportEl.clientHeight/2));
+  $("#zoomOut").addEventListener("click", () => zoomBy(0.88, viewportEl.clientWidth/2, viewportEl.clientHeight/2));
+  $("#btnResetView").addEventListener("click", resetView);
+  $("#centerOnSelected").addEventListener("click", centerOnSelected);
+
+  $("#btnExpandAll").addEventListener("click", () => {
+    flatten(data).forEach(x => { if((x.node.children||[]).length) expanded.add(x.node.id); });
+    render();
+  });
+  $("#btnCollapseAll").addEventListener("click", () => {
+    expanded.clear(); expanded.add("root");
+    render();
+  });
+
+  // Drawer toggle
+  const btnToggleDrawer = $("#btnToggleDrawer");
+  function syncDrawerBtn(){
+    const open = document.body.classList.contains("drawer-open");
+    btnToggleDrawer.textContent = open ? "Shrink" : "Expand";
+  }
+  btnToggleDrawer.addEventListener("click", () => {
+    document.body.classList.toggle("drawer-open");
+    syncDrawerBtn();
+  });
+  syncDrawerBtn();
+
+  // Search
+  const searchEl = $("#search");
+  searchEl.addEventListener("input", () => search(searchEl.value));
+  window.addEventListener("keydown", (e) => {
+    if(e.key === "Escape"){
+      searchEl.value = "";
+      search("");
+    }
+  });
+
+  updateDefinition("root");
+  render();
+
+  let resizeTimer = null;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => render(), 120);
+  });
+})();
+</script>
+</body>
+</html>
