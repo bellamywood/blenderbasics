@@ -1,0 +1,1207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Blender Bowling Alley (KS3) – Pupil Mission</title>
+  <meta name="description" content="KS3 pupil-friendly Blender mission: learn the layout + controls, then build a bowling alley (pins + ball + lane)." />
+  <style>
+    :root{
+      /* ADHD-friendly: high contrast, clear grouping, big targets, limited text per screen */
+      --bg0:#050713;
+      --bg1:#0a0f26;
+      --card:#0f1736cc;
+      --card2:#0b112acc;
+      --text:#f2f5ff;
+      --muted:#b7c0e6;
+      --line:rgba(255,255,255,.14);
+
+      --a1:#7aa7ff;   /* blue */
+      --a2:#7cf6c5;   /* mint */
+      --a3:#ffd27a;   /* amber */
+      --a4:#ff7a9a;   /* pink */
+
+      --shadow: 0 16px 40px rgba(0,0,0,.45);
+      --r:18px;
+
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+      --focus: 0 0 0 4px rgba(122,167,255,.35);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 10% 10%, rgba(122,167,255,.18), transparent 60%),
+        radial-gradient(900px 550px at 85% 18%, rgba(124,246,197,.16), transparent 55%),
+        radial-gradient(900px 650px at 65% 92%, rgba(255,122,154,.12), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      line-height:1.4;
+    }
+
+    a{color:inherit}
+    button{font-family:inherit}
+    .wrap{max-width:1100px; margin:0 auto; padding:18px;}
+    header{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(12px);
+      background: linear-gradient(180deg, rgba(5,7,19,.92), rgba(5,7,19,.62));
+      border-bottom:1px solid var(--line);
+    }
+
+    /* Top bar */
+    .top{
+      display:flex; align-items:center; justify-content:space-between; gap:14px;
+      flex-wrap:wrap;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      min-width:260px;
+    }
+    .logo{
+      width:46px; height:46px; border-radius:16px;
+      background: linear-gradient(135deg, rgba(122,167,255,.92), rgba(124,246,197,.92));
+      display:grid; place-items:center;
+      color:#081026;
+      font-weight:900;
+      letter-spacing:.6px;
+      box-shadow: var(--shadow);
+    }
+    .brand h1{margin:0; font-size:18px}
+    .brand p{margin:4px 0 0; color:var(--muted); font-size:13px}
+
+    .bar{
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    }
+
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      color:var(--muted);
+      font-size:13px;
+    }
+    .chip b{color:var(--text)}
+    .btn{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:800;
+      letter-spacing:.2px;
+      transition: transform .05s ease, background .2s ease, border-color .2s ease;
+      user-select:none;
+    }
+    .btn:hover{background: rgba(255,255,255,.10)}
+    .btn:active{transform: translateY(1px)}
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(122,167,255,.30), rgba(124,246,197,.20));
+      border-color: rgba(124,246,197,.35);
+    }
+    .btn.alt{
+      background: rgba(255,210,122,.10);
+      border-color: rgba(255,210,122,.32);
+    }
+    .btn.danger{
+      background: rgba(255,122,154,.12);
+      border-color: rgba(255,122,154,.35);
+    }
+    .btn:focus{outline:none; box-shadow: var(--focus)}
+
+    /* Layout */
+    main{padding:18px 0 60px}
+    .grid{
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      gap:16px;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      .grid{grid-template-columns:1fr}
+      nav{position:relative !important; top:auto !important}
+    }
+
+    nav{
+      position:sticky; top:92px;
+      border:1px solid var(--line);
+      border-radius: var(--r);
+      background: rgba(15,23,54,.62);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .navhd{
+      padding:14px 14px 10px;
+      border-bottom:1px solid var(--line);
+      background: rgba(11,17,42,.58);
+    }
+    .navhd h2{margin:0; font-size:14px}
+    .navhd p{margin:6px 0 0; color:var(--muted); font-size:12px}
+
+    .navlist{padding:10px; display:flex; flex-direction:column; gap:8px;}
+    .navitem{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid transparent;
+      background: rgba(0,0,0,.14);
+      color:var(--muted);
+      cursor:pointer;
+      user-select:none;
+      transition: background .15s ease, border-color .15s ease, color .15s ease, transform .06s ease;
+    }
+    .navitem:hover{background: rgba(255,255,255,.06); color:var(--text)}
+    .navitem:active{transform: translateY(1px)}
+    .navitem.active{
+      border-color: rgba(124,246,197,.28);
+      background: linear-gradient(135deg, rgba(122,167,255,.18), rgba(124,246,197,.12));
+      color:var(--text);
+    }
+    .pill{
+      font-family:var(--mono);
+      font-size:12px;
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      min-width:64px;
+      text-align:center;
+      color:var(--muted);
+    }
+    .pill.done{
+      border-color: rgba(124,246,197,.35);
+      background: rgba(124,246,197,.10);
+      color: var(--a2);
+    }
+
+    /* Content */
+    .content{display:flex; flex-direction:column; gap:14px;}
+    .card{
+      border:1px solid var(--line);
+      border-radius: var(--r);
+      background: rgba(15,23,54,.58);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .hd{
+      padding:16px 16px 10px;
+      border-bottom:1px solid var(--line);
+      background: rgba(11,17,42,.55);
+    }
+    .hd h2{margin:0; font-size:20px}
+    .hd p{margin:8px 0 0; color:var(--muted); font-size:14px}
+
+    .bd{padding:16px}
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .progress{
+      height:12px; border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      overflow:hidden;
+      flex:1;
+      min-width:200px;
+    }
+    .progress > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(122,167,255,.9), rgba(124,246,197,.9), rgba(255,210,122,.75));
+      transition: width .25s ease;
+    }
+    .big{
+      font-size:16px;
+      font-weight:800;
+      letter-spacing:.15px;
+    }
+
+    .tiles{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:12px;
+    }
+    @media (max-width: 740px){ .tiles{grid-template-columns:1fr} }
+
+    .tile{
+      border:1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(0,0,0,.16);
+      padding:12px;
+    }
+    .tile h3{margin:0; font-size:15px}
+    .tile p{margin:6px 0 0; color:var(--muted); font-size:13px}
+
+    /* Steps: big targets, fewer words, clear keypress bubbles */
+    .steps{display:flex; flex-direction:column; gap:10px; margin-top:12px;}
+    .step{
+      display:flex; gap:12px; align-items:flex-start;
+      padding:12px;
+      border:1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,.04);
+      position:relative;
+    }
+    .step:focus-within{box-shadow: var(--focus)}
+    .tick{
+      width:30px; height:30px;
+      border-radius: 12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      display:grid; place-items:center;
+      cursor:pointer;
+      user-select:none;
+      font-weight:900;
+      font-family: var(--mono);
+      color: rgba(242,245,255,.8);
+      flex:0 0 auto;
+      margin-top:1px;
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .tick:hover{background: rgba(255,255,255,.06)}
+    .tick:active{transform: translateY(1px)}
+    .tick.done{
+      border-color: rgba(124,246,197,.50);
+      background: rgba(124,246,197,.16);
+      color: var(--a2);
+    }
+    .step h4{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.15px;
+    }
+    .step p{margin:6px 0 0; color:var(--muted); font-size:14px}
+    .mini{margin-top:8px; color:var(--muted); font-size:13px}
+
+    .kbd{
+      font-family:var(--mono);
+      font-size:13px;
+      padding:4px 8px;
+      border-radius:10px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.22);
+      color:var(--text);
+      white-space:nowrap;
+    }
+    .kbd.good{border-color: rgba(124,246,197,.38)}
+    .kbd.warn{border-color: rgba(255,210,122,.38)}
+    .kbd.bad{border-color: rgba(255,122,154,.38)}
+
+    .callout{
+      border:1px solid var(--line);
+      border-radius: 16px;
+      padding:12px;
+      background: rgba(0,0,0,.16);
+      color:var(--muted);
+    }
+    .callout strong{color:var(--text)}
+    .callout.ok{border-color: rgba(124,246,197,.35); background: rgba(124,246,197,.09)}
+    .callout.warn{border-color: rgba(255,210,122,.35); background: rgba(255,210,122,.09)}
+    .callout.hot{border-color: rgba(255,122,154,.35); background: rgba(255,122,154,.09)}
+
+    /* Focus mode */
+    .focusbar{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .toggle{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      cursor:pointer;
+      user-select:none;
+      font-weight:800;
+    }
+    .toggle .dot{
+      width:14px; height:14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.22);
+      border:1px solid var(--line);
+      box-shadow: inset 0 0 0 4px rgba(0,0,0,.12);
+    }
+    .toggle.on{
+      border-color: rgba(124,246,197,.35);
+      background: rgba(124,246,197,.10);
+    }
+    .toggle.on .dot{
+      background: rgba(124,246,197,.85);
+      border-color: rgba(124,246,197,.45);
+    }
+
+    /* Breathing / microbreak */
+    .breakbox{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:12px;
+      border-radius: 16px;
+      border:1px solid rgba(122,167,255,.28);
+      background: rgba(122,167,255,.10);
+      margin-top:12px;
+    }
+    .breath{
+      width:34px; height:34px; border-radius: 16px;
+      border:1px solid rgba(255,255,255,.18);
+      background: radial-gradient(circle at 30% 30%, rgba(124,246,197,.60), rgba(122,167,255,.35));
+      animation: pulse 3.2s ease-in-out infinite;
+      flex:0 0 auto;
+    }
+    @keyframes pulse{
+      0%,100%{transform: scale(1)}
+      50%{transform: scale(1.18)}
+    }
+
+    /* Reduced motion preference */
+    @media (prefers-reduced-motion: reduce){
+      .breath{animation:none}
+      .navitem, .btn, .tick, .progress > div{transition:none}
+    }
+
+    /* Footer */
+    footer{
+      padding: 30px 0 40px;
+      border-top:1px solid var(--line);
+      background: rgba(0,0,0,.10);
+      color:var(--muted);
+    }
+    .small{font-size:12px; color:var(--muted)}
+    .hr{height:1px; background: var(--line); margin:12px 0}
+
+    /* Focus mode hides everything except current card */
+    body.focus-on .card{opacity:.20; filter: blur(.3px)}
+    body.focus-on .card.focus-card{opacity:1; filter:none}
+    body.focus-on nav{opacity:.35}
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <div class="logo">🎳</div>
+        <div>
+          <h1>Blender Bowling Alley</h1>
+          <p>One mission. Small steps. Big win.</p>
+        </div>
+      </div>
+
+      <div class="bar">
+        <div class="chip" title="Your ticks save on this device.">
+          ✅ <span>Done:</span> <b id="doneCount">0</b>/<b id="totalCount">0</b>
+        </div>
+        <div class="chip" title="Overall progress">
+          📈 <b id="pctText">0%</b>
+          <div class="progress" aria-label="Progress bar"><div id="pctFill"></div></div>
+        </div>
+        <button class="btn alt" id="btnNext" type="button">Next step ➜</button>
+        <button class="btn primary" id="btnFocus" type="button" aria-pressed="false">Focus mode</button>
+        <button class="btn" id="btnExport" type="button">Export</button>
+        <button class="btn danger" id="btnReset" type="button">Reset</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="grid">
+      <nav aria-label="Mission map">
+        <div class="navhd">
+          <h2>Mission map</h2>
+          <p>Tap a section. Tick steps as you go.</p>
+        </div>
+        <div class="navlist" id="navList"></div>
+      </nav>
+
+      <div class="content" id="content">
+
+        <!-- Card 1 -->
+        <section class="card" data-section="start" data-title="Start" data-steps="4">
+          <div class="hd">
+            <h2>1) Start</h2>
+            <p class="big">Goal: build a lane + 10 pins + a ball.</p>
+            <div class="focusbar">
+              <div class="tile" style="border-color:rgba(124,246,197,.25)">
+                <h3>✅ What you’ll finish with</h3>
+                <p>One bowling alley scene, ready to screenshot or render.</p>
+              </div>
+              <div class="tile" style="border-color:rgba(255,210,122,.25)">
+                <h3>🧠 Brain tip</h3>
+                <p>Do <strong>one step</strong>, tick it, then go again.</p>
+              </div>
+            </div>
+          </div>
+          <div class="bd">
+            <div class="callout ok">
+              <strong>Golden rule:</strong> if something goes wrong, press <span class="kbd bad">Right Click</span> to cancel, or <span class="kbd">Ctrl + Z</span> to undo.
+            </div>
+
+            <div class="steps">
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="start-1">✓</div>
+                <div>
+                  <h4>Open Blender</h4>
+                  <p>Start a new file (the cube is normal).</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="start-2">✓</div>
+                <div>
+                  <h4>Delete the cube</h4>
+                  <p>Select cube → <span class="kbd">X</span> → Delete.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="start-3">✓</div>
+                <div>
+                  <h4>Save now</h4>
+                  <p><span class="kbd">File → Save</span> (name it <span class="kbd">bowling_alley</span>).</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="start-4">✓</div>
+                <div>
+                  <h4>Quick teacher demo</h4>
+                  <p>Watch: orbit, pan, zoom, and selecting objects.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="breakbox" aria-label="Microbreak">
+              <div class="row" style="gap:12px">
+                <div class="breath" aria-hidden="true"></div>
+                <div>
+                  <div class="big">20-second microbreak</div>
+                  <div class="small">Breathe in… out… then do the next step.</div>
+                </div>
+              </div>
+              <button class="btn" type="button" id="btnTimer">Start 20s</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Card 2 -->
+        <section class="card" data-section="layout" data-title="Layout" data-steps="5">
+          <div class="hd">
+            <h2>2) Blender layout</h2>
+            <p>Blender is split into areas. Learn the big 4.</p>
+          </div>
+          <div class="bd">
+            <div class="tiles">
+              <div class="tile">
+                <h3>🧱 3D Viewport</h3>
+                <p>Where you build the models.</p>
+              </div>
+              <div class="tile">
+                <h3>📋 Outliner</h3>
+                <p>List of objects. Great for selecting.</p>
+              </div>
+              <div class="tile">
+                <h3>⚙️ Properties</h3>
+                <p>Materials, modifiers, settings.</p>
+              </div>
+              <div class="tile">
+                <h3>⏱ Timeline</h3>
+                <p>Animation bar (not today, mostly).</p>
+              </div>
+            </div>
+
+            <div class="callout warn" style="margin-top:12px">
+              <strong>Mouse focus:</strong> Blender listens to the area your mouse is over. Click the 3D Viewport before shortcuts.
+            </div>
+
+            <div class="steps">
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="layout-1">✓</div>
+                <div>
+                  <h4>Point to the 3D Viewport</h4>
+                  <p>Biggest area on the screen.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="layout-2">✓</div>
+                <div>
+                  <h4>Find the Outliner</h4>
+                  <p>Top-right (usually). Click object names to select.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="layout-3">✓</div>
+                <div>
+                  <h4>Find Properties</h4>
+                  <p>Icons down the side (materials + modifiers live here).</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="layout-4">✓</div>
+                <div>
+                  <h4>Learn X / Y / Z</h4>
+                  <p><span class="kbd">X</span> left-right, <span class="kbd">Y</span> forward-back, <span class="kbd">Z</span> up-down.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="layout-5">✓</div>
+                <div>
+                  <h4>Find the axis gizmo</h4>
+                  <p>Top-right of the Viewport. Click it to straighten your view.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Card 3 -->
+        <section class="card" data-section="controls" data-title="Controls" data-steps="7">
+          <div class="hd">
+            <h2>3) Controls (power moves)</h2>
+            <p>These shortcuts make Blender fast.</p>
+          </div>
+          <div class="bd">
+            <div class="tiles">
+              <div class="tile" style="border-color: rgba(124,246,197,.25)">
+                <h3>Move</h3>
+                <p><span class="kbd good">G</span> then mouse → <span class="kbd">X/Y/Z</span> to lock.</p>
+              </div>
+              <div class="tile" style="border-color: rgba(122,167,255,.25)">
+                <h3>Rotate</h3>
+                <p><span class="kbd">R</span> then mouse → <span class="kbd">X/Y/Z</span>.</p>
+              </div>
+              <div class="tile" style="border-color: rgba(255,210,122,.25)">
+                <h3>Scale</h3>
+                <p><span class="kbd warn">S</span> then mouse → <span class="kbd">X/Y/Z</span>.</p>
+              </div>
+              <div class="tile" style="border-color: rgba(255,122,154,.25)">
+                <h3>Cancel / Undo</h3>
+                <p><span class="kbd bad">Right Click</span> cancels. <span class="kbd">Ctrl + Z</span> undoes.</p>
+              </div>
+            </div>
+
+            <div class="steps">
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="controls-1">✓</div>
+                <div>
+                  <h4>Practice Move</h4>
+                  <p>Select anything → press <span class="kbd good">G</span> → move → left click to place.</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="controls-2">✓</div>
+                <div>
+                  <h4>Lock to an axis</h4>
+                  <p>While moving: tap <span class="kbd">Z</span> to go up/down only.</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="controls-3">✓</div>
+                <div>
+                  <h4>Practice Rotate</h4>
+                  <p><span class="kbd">R</span> to rotate. Cancel with <span class="kbd bad">Right Click</span>.</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="controls-4">✓</div>
+                <div>
+                  <h4>Practice Scale</h4>
+                  <p><span class="kbd warn">S</span> to scale bigger/smaller.</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="controls-5">✓</div>
+                <div>
+                  <h4>Switch modes</h4>
+                  <p><span class="kbd">Tab</span> = Object Mode ↔ Edit Mode.</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="controls-6">✓</div>
+                <div>
+                  <h4>Edit select types</h4>
+                  <p>In Edit Mode: <span class="kbd">1</span> vertices, <span class="kbd">2</span> edges, <span class="kbd">3</span> faces.</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="controls-7">✓</div>
+                <div>
+                  <h4>Extrude (build tool)</h4>
+                  <p>Edit Mode: <span class="kbd">E</span> makes your shape grow.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="callout ok" style="margin-top:12px">
+              <strong>Win condition:</strong> you can do <span class="kbd">G</span>, <span class="kbd">R</span>, <span class="kbd">S</span>, and cancel without stress.
+            </div>
+          </div>
+        </section>
+
+        <!-- Card 4 -->
+        <section class="card" data-section="pin" data-title="Pin" data-steps="8">
+          <div class="hd">
+            <h2>4) Make a bowling pin</h2>
+            <p>Start with a cylinder → extrude + scale → smooth.</p>
+          </div>
+          <div class="bd">
+            <div class="callout">
+              <strong>Tip:</strong> If you can’t see your object, click it in the Outliner then press <span class="kbd">Home</span>.
+            </div>
+
+            <div class="steps">
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="pin-1">✓</div>
+                <div>
+                  <h4>Add a cylinder</h4>
+                  <p><span class="kbd">Add → Mesh → Cylinder</span></p>
+                  <div class="mini">Bottom-left settings: Vertices <span class="kbd">8</span>, Radius <span class="kbd">0.5</span>, Depth <span class="kbd">0.1</span></div>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="pin-2">✓</div>
+                <div>
+                  <h4>Go to Edit Mode</h4>
+                  <p>Press <span class="kbd">Tab</span>.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="pin-3">✓</div>
+                <div>
+                  <h4>Select the top face</h4>
+                  <p>Press <span class="kbd">3</span> then click the top face.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="pin-4">✓</div>
+                <div>
+                  <h4>Extrude up</h4>
+                  <p><span class="kbd">E</span> then move up a little → left click.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="pin-5">✓</div>
+                <div>
+                  <h4>Scale to shape</h4>
+                  <p><span class="kbd warn">S</span> bigger for the body, smaller for the neck.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="pin-6">✓</div>
+                <div>
+                  <h4>Repeat (E then S)</h4>
+                  <p>Do <span class="kbd">E</span> then <span class="kbd warn">S</span> a few times to make the pin head.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="pin-7">✓</div>
+                <div>
+                  <h4>Smooth it</h4>
+                  <p>Object Mode → right click → <strong>Shade Smooth</strong>.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="pin-8">✓</div>
+                <div>
+                  <h4>Make it extra smooth</h4>
+                  <p>Modifiers → <strong>Subdivision Surface</strong> (Levels 1–2).</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="callout warn" style="margin-top:12px">
+              <strong>Checkpoint:</strong> You should have ONE nice pin before you make 10.
+            </div>
+          </div>
+        </section>
+
+        <!-- Card 5 -->
+        <section class="card" data-section="ball" data-title="Ball" data-steps="7">
+          <div class="hd">
+            <h2>5) Make a bowling ball</h2>
+            <p>Sphere → select faces → extrude inward for holes.</p>
+          </div>
+          <div class="bd">
+            <div class="steps">
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="ball-1">✓</div>
+                <div>
+                  <h4>Add a UV Sphere</h4>
+                  <p><span class="kbd">Add → Mesh → UV Sphere</span></p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="ball-2">✓</div>
+                <div>
+                  <h4>Set size + height</h4>
+                  <p>Bottom-left settings: Radius <span class="kbd">0.8</span>, Location Z <span class="kbd">0.8</span></p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="ball-3">✓</div>
+                <div>
+                  <h4>Edit Mode</h4>
+                  <p><span class="kbd">Tab</span> then <span class="kbd">3</span> for faces.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="ball-4">✓</div>
+                <div>
+                  <h4>Select 3 faces</h4>
+                  <p>Hold <span class="kbd">Shift</span> and click 3 nearby faces (finger holes).</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="ball-5">✓</div>
+                <div>
+                  <h4>Extrude inward (twice)</h4>
+                  <p>Press <span class="kbd">E</span> → move inward a bit → left click. Do it again.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="ball-6">✓</div>
+                <div>
+                  <h4>Smooth it</h4>
+                  <p>Object Mode → <strong>Shade Smooth</strong> + Subdivision Surface (1–2).</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="ball-7">✓</div>
+                <div>
+                  <h4>Save</h4>
+                  <p><span class="kbd">Ctrl + S</span> (save again).</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="callout ok" style="margin-top:12px">
+              <strong>Style points:</strong> add a colour in Material Properties → New → Base Color.
+            </div>
+          </div>
+        </section>
+
+        <!-- Card 6 -->
+        <section class="card" data-section="scene" data-title="Scene" data-steps="9">
+          <div class="hd">
+            <h2>6) Build the bowling alley</h2>
+            <p>Lane → duplicate pins → place ball.</p>
+          </div>
+          <div class="bd">
+            <div class="callout ok">
+              <strong>Quick movement trick:</strong> press <span class="kbd good">G</span> then <span class="kbd">Z</span> to lift/drop.
+            </div>
+
+            <div class="steps">
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="scene-1">✓</div>
+                <div>
+                  <h4>Add a lane (plane)</h4>
+                  <p><span class="kbd">Add → Mesh → Plane</span></p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="scene-2">✓</div>
+                <div>
+                  <h4>Make it long</h4>
+                  <p><span class="kbd warn">S</span> then <span class="kbd">Y</span> (or <span class="kbd">X</span>) to stretch long.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="scene-3">✓</div>
+                <div>
+                  <h4>Put 1 pin at the end</h4>
+                  <p>Select pin → <span class="kbd good">G</span> to move → <span class="kbd">Z</span> to fix height.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="scene-4">✓</div>
+                <div>
+                  <h4>Duplicate pins</h4>
+                  <p>Select pin → <span class="kbd">Shift + D</span> → place it.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="scene-5">✓</div>
+                <div>
+                  <h4>Make 10 pins (triangle)</h4>
+                  <p>Rows: <strong>4</strong>, then <strong>3</strong>, then <strong>2</strong>, then <strong>1</strong>.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="scene-6">✓</div>
+                <div>
+                  <h4>Place the ball at the start</h4>
+                  <p>Move ball near the start of the lane, facing the pins.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="scene-7">✓</div>
+                <div>
+                  <h4>Add gutters (optional)</h4>
+                  <p>Add 2 cubes and scale them long along the sides.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="scene-8">✓</div>
+                <div>
+                  <h4>Colour the lane</h4>
+                  <p>Material → New → Base Color (wood-ish). Keep it simple.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="scene-9">✓</div>
+                <div>
+                  <h4>Screenshot / render</h4>
+                  <p>Take a screenshot for evidence (or teacher shows render).</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="callout warn" style="margin-top:12px">
+              <strong>If you're stuck:</strong> 1) click the Viewport, 2) check mode (Object/Edit), 3) use Outliner to select.
+            </div>
+          </div>
+        </section>
+
+        <!-- Card 7 -->
+        <section class="card" data-section="fix" data-title="Fixes" data-steps="5">
+          <div class="hd">
+            <h2>7) Fixes (fast)</h2>
+            <p>Most problems have a simple fix.</p>
+          </div>
+          <div class="bd">
+            <div class="steps">
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="fix-1">✓</div>
+                <div>
+                  <h4>Shortcut didn’t work</h4>
+                  <p>Click the 3D Viewport first.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="fix-2">✓</div>
+                <div>
+                  <h4>Can’t extrude</h4>
+                  <p>You must be in Edit Mode and have something selected.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="fix-3">✓</div>
+                <div>
+                  <h4>Object disappeared</h4>
+                  <p>Outliner eye icon (hidden). Or select it then <span class="kbd">Home</span>.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="fix-4">✓</div>
+                <div>
+                  <h4>Everything got messy</h4>
+                  <p><span class="kbd">Ctrl + Z</span> undo. Or cancel with <span class="kbd bad">Right Click</span>.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="fix-5">✓</div>
+                <div>
+                  <h4>Save (again)</h4>
+                  <p>Save often. Future-you will be grateful.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="callout ok" style="margin-top:12px">
+              <strong>Mission complete:</strong> if you have a lane + 10 pins + a ball, you win. 🎉
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="card" style="background: rgba(15,23,54,.40)">
+      <div class="bd">
+        <div class="row">
+          <div class="chip">Offline-friendly</div>
+          <div class="chip">Big buttons</div>
+          <div class="chip">Focus mode</div>
+          <div class="chip">Progress saves</div>
+        </div>
+        <div class="hr"></div>
+        <div class="small">
+          For GitHub Pages, name this file <span class="kbd">index.html</span> and upload it to your repo root.
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const STORAGE_KEY = "blenderBowlingKS3.pupil.progress.v1";
+  const $ = (sel, el=document) => el.querySelector(sel);
+  const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+
+  function loadState(){
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
+    catch(e){ return {}; }
+  }
+  function saveState(state){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+  function allTickEls(){ return $$(".tick"); }
+  function allTickIds(){ return allTickEls().map(t => t.dataset.tick); }
+
+  function setTick(id, done){
+    const s = loadState();
+    s[id] = !!done;
+    saveState(s);
+    render();
+  }
+  function toggleTick(id){
+    const s = loadState();
+    s[id] = !s[id];
+    saveState(s);
+    render();
+  }
+  function clearState(){
+    localStorage.removeItem(STORAGE_KEY);
+    render();
+  }
+
+  function progress(){
+    const s = loadState();
+    const ids = allTickIds();
+    const done = ids.filter(id => s[id]).length;
+    const total = ids.length;
+    const pct = total ? Math.round((done/total)*100) : 0;
+    return {done,total,pct};
+  }
+
+  function buildNav(){
+    const nav = $("#navList");
+    nav.innerHTML = "";
+    const sections = $$("section.card");
+    sections.forEach((sec, i) => {
+      const id = sec.dataset.section;
+      const title = sec.dataset.title || "Section";
+      const item = document.createElement("div");
+      item.className = "navitem";
+      item.dataset.section = id;
+      item.innerHTML = `<span>${i+1}. ${title}</span><span class="pill">0/0</span>`;
+      item.addEventListener("click", () => {
+        sec.scrollIntoView({behavior:"smooth", block:"start"});
+        setActiveNav(id);
+        setFocusCard(sec);
+      });
+      nav.appendChild(item);
+    });
+    setActiveNav(sections[0]?.dataset.section);
+  }
+
+  function setActiveNav(sectionId){
+    $$(".navitem").forEach(n => n.classList.toggle("active", n.dataset.section === sectionId));
+  }
+
+  function render(){
+    const s = loadState();
+
+    // ticks
+    allTickEls().forEach(t => {
+      const id = t.dataset.tick;
+      const done = !!s[id];
+      t.classList.toggle("done", done);
+      t.setAttribute("aria-checked", done ? "true" : "false");
+    });
+
+    // nav pills
+    $$(".navitem").forEach(item => {
+      const secId = item.dataset.section;
+      const ticks = $$( `section[data-section="${secId}"] .tick` ).map(t => t.dataset.tick);
+      const done = ticks.filter(id => s[id]).length;
+      const total = ticks.length;
+      const pill = item.querySelector(".pill");
+      if(pill){
+        pill.textContent = `${done}/${total}`;
+        pill.classList.toggle("done", total > 0 && done === total);
+      }
+    });
+
+    const p = progress();
+    $("#doneCount").textContent = p.done;
+    $("#totalCount").textContent = p.total;
+    $("#pctText").textContent = `${p.pct}%`;
+    $("#pctFill").style.width = `${p.pct}%`;
+  }
+
+  // Active section on scroll
+  function onScroll(){
+    const sections = $$("section.card");
+    const y = window.scrollY + 120;
+    let current = sections[0]?.dataset.section;
+    for(const sec of sections){
+      if(sec.offsetTop <= y) current = sec.dataset.section;
+    }
+    if(current) setActiveNav(current);
+  }
+
+  // Focus mode
+  function setFocusCard(sectionEl){
+    if(!sectionEl) return;
+    $$("section.card").forEach(s => s.classList.remove("focus-card"));
+    sectionEl.classList.add("focus-card");
+  }
+  function toggleFocus(){
+    const on = document.body.classList.toggle("focus-on");
+    $("#btnFocus").setAttribute("aria-pressed", on ? "true" : "false");
+    $("#btnFocus").textContent = on ? "Focus mode: ON" : "Focus mode";
+    if(on){
+      // pick current nav active section
+      const active = $(".navitem.active")?.dataset.section;
+      const sec = active ? document.querySelector(`section[data-section="${active}"]`) : document.querySelector("section.card");
+      setFocusCard(sec);
+    }
+  }
+
+  // Next step (find first unticked)
+  function goNext(){
+    const s = loadState();
+    const steps = allTickEls();
+    const next = steps.find(t => !s[t.dataset.tick]);
+    if(next){
+      const card = next.closest("section.card");
+      if(card){
+        card.scrollIntoView({behavior:"smooth", block:"start"});
+        setActiveNav(card.dataset.section);
+        setFocusCard(card);
+      }
+      // slight delay then highlight
+      setTimeout(() => {
+        next.animate([{transform:"scale(1)"},{transform:"scale(1.08)"},{transform:"scale(1)"}], {duration:420, easing:"ease-out"});
+      }, 220);
+    }else{
+      alert("All steps done! 🎉 Nice work.");
+    }
+  }
+
+  // Export checklist (simple)
+  function exportChecklist(){
+    const s = loadState();
+    const lines = [];
+    lines.push("Blender Bowling Alley (KS3) – Pupil Checklist");
+    lines.push("Generated: " + new Date().toLocaleString());
+    lines.push("");
+    $$("section.card").forEach(sec => {
+      const title = sec.querySelector(".hd h2")?.textContent?.trim() || sec.dataset.title || "Section";
+      lines.push("== " + title + " ==");
+      $$(".step", sec).forEach(step => {
+        const tick = step.querySelector(".tick");
+        const done = tick ? !!s[tick.dataset.tick] : false;
+        const h4 = step.querySelector("h4")?.textContent?.trim() || "Step";
+        lines.push((done ? "[x] " : "[ ] ") + h4);
+      });
+      lines.push("");
+    });
+
+    const blob = new Blob([lines.join("\n")], {type:"text/plain;charset=utf-8"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "blender_bowling_pupil_checklist.txt";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+  }
+
+  // 20s timer
+  let timer = null;
+  function startTimer(){
+    const btn = $("#btnTimer");
+    let t = 20;
+    btn.disabled = true;
+    btn.textContent = "20s";
+    timer = setInterval(() => {
+      t -= 1;
+      btn.textContent = t + "s";
+      if(t <= 0){
+        clearInterval(timer);
+        timer = null;
+        btn.disabled = false;
+        btn.textContent = "Done ✅";
+        setTimeout(() => btn.textContent = "Start 20s", 1200);
+      }
+    }, 1000);
+  }
+
+  function setup(){
+    buildNav();
+
+    // tick handlers
+    allTickEls().forEach(t => {
+      t.addEventListener("click", () => toggleTick(t.dataset.tick));
+      t.addEventListener("keydown", (e) => {
+        if(e.key === "Enter" || e.key === " "){
+          e.preventDefault();
+          toggleTick(t.dataset.tick);
+        }
+      });
+    });
+
+    // buttons
+    $("#btnReset").addEventListener("click", () => {
+      const ok = confirm("Reset all ticks? (This only affects this device.)");
+      if(ok) clearState();
+    });
+    $("#btnExport").addEventListener("click", exportChecklist);
+    $("#btnFocus").addEventListener("click", toggleFocus);
+    $("#btnNext").addEventListener("click", goNext);
+    $("#btnTimer").addEventListener("click", startTimer);
+
+    // initial focus card
+    const first = document.querySelector("section.card");
+    setFocusCard(first);
+
+    window.addEventListener("scroll", onScroll, {passive:true});
+    render();
+  }
+
+  setup();
+})();
+</script>
+</body>
+</html>

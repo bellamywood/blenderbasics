@@ -1,0 +1,1450 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Blender Bowling Alley (KS3) – Step-by-step</title>
+  <meta name="description" content="A KS3-friendly Blender tutorial: layout, controls, then build a bowling alley with pins and a ball." />
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#121a33;
+      --panel2:#0f1630;
+      --text:#e9eeff;
+      --muted:#a9b3d9;
+      --accent:#7cf6c5;
+      --accent2:#7aa7ff;
+      --warn:#ffd27a;
+      --danger:#ff7a9a;
+      --ok:#7cf6c5;
+      --border:rgba(255,255,255,.12);
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius:16px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 15% 10%, rgba(122,167,255,.18), transparent 60%),
+        radial-gradient(900px 500px at 85% 20%, rgba(124,246,197,.16), transparent 55%),
+        radial-gradient(900px 600px at 70% 90%, rgba(255,122,154,.10), transparent 55%),
+        var(--bg);
+      line-height:1.45;
+    }
+    a{color:inherit}
+    header{
+      position:sticky; top:0; z-index:50;
+      background: linear-gradient(180deg, rgba(11,16,32,.92), rgba(11,16,32,.65));
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--border);
+    }
+    .wrap{max-width:1100px; margin:0 auto; padding:18px 18px;}
+    .topbar{
+      display:flex; gap:14px; align-items:center; justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+    }
+    .logo{
+      width:44px; height:44px; border-radius:14px;
+      background: linear-gradient(135deg, rgba(122,167,255,.95), rgba(124,246,197,.95));
+      box-shadow: var(--shadow);
+      display:grid; place-items:center;
+      color:#091026;
+      font-weight:900;
+      letter-spacing:.5px;
+    }
+    .title h1{margin:0; font-size:18px; letter-spacing:.2px}
+    .title p{margin:2px 0 0; color:var(--muted); font-size:13px}
+    .actions{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    }
+    .btn{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:700;
+      box-shadow: 0 0 0 rgba(0,0,0,0);
+      transition: transform .06s ease, background .2s ease, box-shadow .2s ease;
+      user-select:none;
+    }
+    .btn:hover{background: rgba(255,255,255,.10)}
+    .btn:active{transform: translateY(1px)}
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(122,167,255,.32), rgba(124,246,197,.24));
+      border-color: rgba(124,246,197,.35);
+    }
+    .btn.danger{
+      background: rgba(255,122,154,.12);
+      border-color: rgba(255,122,154,.35);
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      border-radius:999px;
+      font-size:13px;
+      color:var(--muted);
+    }
+    .pill b{color:var(--text)}
+    main{padding: 18px 0 60px}
+    .grid{
+      display:grid;
+      grid-template-columns: 290px 1fr;
+      gap:16px;
+      align-items:start;
+    }
+    @media (max-width: 940px){
+      .grid{grid-template-columns: 1fr;}
+      nav{position:relative !important; top:auto !important;}
+    }
+    nav{
+      position:sticky; top:88px;
+      border:1px solid var(--border);
+      background: rgba(18,26,51,.75);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .navhead{
+      padding:14px 14px 10px;
+      border-bottom:1px solid var(--border);
+      background: rgba(15,22,48,.65);
+    }
+    .navhead h2{margin:0; font-size:14px}
+    .navhead p{margin:6px 0 0; font-size:12px; color:var(--muted)}
+    .navlist{padding:8px}
+    .navitem{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
+      padding:10px 10px;
+      border-radius:12px;
+      cursor:pointer;
+      border:1px solid transparent;
+      color:var(--muted);
+      transition: background .15s ease, border-color .15s ease, color .15s ease;
+    }
+    .navitem:hover{background: rgba(255,255,255,.06); color:var(--text)}
+    .navitem.active{
+      background: linear-gradient(135deg, rgba(122,167,255,.18), rgba(124,246,197,.12));
+      border-color: rgba(124,246,197,.25);
+      color:var(--text);
+    }
+    .badge{
+      font-family:var(--mono);
+      font-size:12px;
+      padding:2px 8px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      color:var(--muted);
+      background: rgba(0,0,0,.16);
+      min-width:42px;
+      text-align:center;
+    }
+    .badge.done{
+      border-color: rgba(124,246,197,.35);
+      color: var(--ok);
+      background: rgba(124,246,197,.10);
+    }
+    .content{
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+    }
+    .card{
+      border:1px solid var(--border);
+      background: rgba(18,26,51,.62);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding:16px 16px 10px;
+      border-bottom:1px solid var(--border);
+      background: rgba(15,22,48,.55);
+    }
+    .card .hd h2{margin:0; font-size:18px}
+    .card .hd p{margin:8px 0 0; color:var(--muted); font-size:14px}
+    .card .bd{padding:16px}
+    .kicker{
+      display:flex; flex-wrap:wrap; gap:8px;
+      margin-top:10px;
+    }
+    .tag{
+      display:inline-flex; align-items:center; gap:8px;
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      color:var(--muted);
+    }
+    .tag strong{color:var(--text)}
+    .cols{
+      display:grid; grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 740px){
+      .cols{grid-template-columns: 1fr;}
+    }
+    .callout{
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      border-radius: 14px;
+      padding:12px 12px;
+      color:var(--muted);
+    }
+    .callout strong{color:var(--text)}
+    .callout.warn{border-color: rgba(255,210,122,.35); background: rgba(255,210,122,.10)}
+    .callout.ok{border-color: rgba(124,246,197,.35); background: rgba(124,246,197,.10)}
+    .callout.danger{border-color: rgba(255,122,154,.35); background: rgba(255,122,154,.10)}
+    .steps{
+      display:flex; flex-direction:column; gap:10px;
+      margin-top:10px;
+    }
+    .step{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      border-radius: 14px;
+      padding:12px;
+    }
+    .stephead{
+      display:flex; gap:10px; align-items:flex-start; justify-content:space-between;
+    }
+    .stephead .left{
+      display:flex; gap:10px; align-items:flex-start;
+    }
+    .tick{
+      width:22px; height:22px; border-radius:7px;
+      border:1px solid var(--border);
+      display:grid; place-items:center;
+      margin-top:2px;
+      cursor:pointer;
+      user-select:none;
+      background: rgba(0,0,0,.18);
+      font-family: var(--mono);
+      font-weight:900;
+      color: rgba(233,238,255,.75);
+    }
+    .tick.done{
+      border-color: rgba(124,246,197,.45);
+      background: rgba(124,246,197,.14);
+      color: var(--ok);
+    }
+    .step h3{
+      margin:0; font-size:15px;
+    }
+    .step p{margin:6px 0 0; color:var(--muted)}
+    .kbd{
+      font-family:var(--mono);
+      font-size:12px;
+      padding:2px 6px;
+      border-radius:8px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.22);
+      color:var(--text);
+      white-space:nowrap;
+    }
+    .list{
+      margin:8px 0 0; padding-left:18px; color:var(--muted);
+    }
+    .list li{margin:6px 0}
+    details{
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255,255,255,.035);
+      padding:10px 12px;
+      margin-top:10px;
+    }
+    summary{
+      cursor:pointer;
+      font-weight:800;
+      color:var(--text);
+    }
+    details p, details li{color:var(--muted)}
+    .quiz{
+      display:grid; gap:10px;
+      margin-top:12px;
+    }
+    .q{
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      border-radius:14px;
+      padding:12px;
+    }
+    .q h4{margin:0 0 10px; font-size:14px}
+    .opt{
+      display:flex; align-items:flex-start; gap:10px;
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid transparent;
+      cursor:pointer;
+      user-select:none;
+      color:var(--muted);
+    }
+    .opt:hover{background: rgba(255,255,255,.06); color:var(--text)}
+    .opt.correct{
+      border-color: rgba(124,246,197,.38);
+      background: rgba(124,246,197,.12);
+      color: var(--ok);
+    }
+    .opt.wrong{
+      border-color: rgba(255,122,154,.38);
+      background: rgba(255,122,154,.12);
+      color: var(--danger);
+    }
+    footer{
+      color:var(--muted);
+      padding: 40px 0 30px;
+      border-top:1px solid var(--border);
+      background: rgba(0,0,0,.10);
+    }
+    .small{font-size:12px; color:var(--muted)}
+    .hr{height:1px; background: var(--border); margin:12px 0}
+    .progressbar{
+      height:10px; border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--border);
+      overflow:hidden;
+      min-width:210px;
+    }
+    .progressbar > div{
+      height:100%;
+      background: linear-gradient(90deg, rgba(122,167,255,.85), rgba(124,246,197,.85));
+      width:0%;
+      transition: width .25s ease;
+    }
+    .row{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+    .printonly{display:none;}
+    @media print{
+      header, nav, .actions, .btn, .pill, .quiz, details, .printnone{display:none !important;}
+      body{background:white; color:black;}
+      .card, .step, .callout{box-shadow:none; background:white; border-color:#ccc;}
+      .printonly{display:block;}
+      a{color:black; text-decoration:none;}
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">B</div>
+        <div class="title">
+          <h1>Blender Bowling Alley (KS3)</h1>
+          <p>Learn the layout + controls, then build your own bowling alley (lane, pins, ball).</p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <div class="pill" title="Progress is saved in this browser (localStorage).">
+          <span>Progress:</span>
+          <b id="progressText">0%</b>
+          <div class="progressbar" aria-label="Progress bar"><div id="progressFill"></div></div>
+        </div>
+        <button class="btn primary" id="btnPrint" type="button">Print checklist</button>
+        <button class="btn" id="btnExport" type="button">Export my checklist</button>
+        <button class="btn danger" id="btnReset" type="button">Reset progress</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="grid">
+      <nav aria-label="Page navigation">
+        <div class="navhead">
+          <h2>Mission</h2>
+          <p>Work top-to-bottom. Tick off steps as you go.</p>
+        </div>
+        <div class="navlist" id="navList"></div>
+      </nav>
+
+      <div class="content" id="content">
+        <!-- Intro -->
+        <section class="card" data-section="intro" data-title="Start here" data-steps="4">
+          <div class="hd">
+            <h2>Start here</h2>
+            <p>Today you’ll learn Blender basics and use them to build a simple 3D bowling alley scene.</p>
+            <div class="kicker">
+              <span class="tag"><strong>Target:</strong> KS3</span>
+              <span class="tag"><strong>Time:</strong> 1–2 lessons</span>
+              <span class="tag"><strong>Outcome:</strong> Lane + 10 pins + ball</span>
+            </div>
+          </div>
+          <div class="bd">
+            <div class="cols">
+              <div class="callout ok">
+                <strong>Success criteria</strong>
+                <ul class="list">
+                  <li>You can name the 4 main Blender areas (Viewport, Outliner, Timeline, Properties).</li>
+                  <li>You can move (<span class="kbd">G</span>), rotate (<span class="kbd">R</span>), scale (<span class="kbd">S</span>) and cancel (<span class="kbd">Right Click</span>).</li>
+                  <li>You model a bowling pin using <span class="kbd">E</span> (Extrude) + <span class="kbd">S</span> (Scale) in Edit Mode.</li>
+                  <li>You make a ball with finger holes and arrange a full setup.</li>
+                </ul>
+              </div>
+              <div class="callout warn">
+                <strong>Be smart with saving</strong>
+                <ul class="list">
+                  <li>Save your Blender file often: <span class="kbd">File → Save</span>.</li>
+                  <li>If you paint textures, also save images: <span class="kbd">Save All Images</span> in the 3D Viewport.</li>
+                  <li>If you get lost, select an object in the Outliner and press <span class="kbd">Home</span>.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="steps">
+              <div class="step" data-step="intro-1">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="intro-1">✓</div>
+                    <div>
+                      <h3>Open Blender</h3>
+                      <p>Start a new file. If you see a cube, that’s normal.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="intro-2">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="intro-2">✓</div>
+                    <div>
+                      <h3>Delete the default cube</h3>
+                      <p>Select the cube (orange outline), then <span class="kbd">Object → Delete</span>.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="intro-3">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="intro-3">✓</div>
+                    <div>
+                      <h3>Know your camera vs viewport</h3>
+                      <p>You build in the 3D Viewport. The camera icon controls what renders (final picture).</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="intro-4">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="intro-4">✓</div>
+                    <div>
+                      <h3>Teacher check-in</h3>
+                      <p>Before modelling, your teacher will show: orbit, pan, zoom, and selecting objects.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <details class="printonly" open>
+              <summary>Printable checklist (tick when done)</summary>
+              <p>Use the on-screen ticks to track progress. Use Print to produce a paper version.</p>
+            </details>
+          </div>
+        </section>
+
+        <!-- Layout -->
+        <section class="card" data-section="layout" data-title="Blender layout tour" data-steps="6">
+          <div class="hd">
+            <h2>Blender layout tour</h2>
+            <p>Blender is one application split into areas (think “windows” inside a window).</p>
+          </div>
+          <div class="bd">
+            <div class="cols">
+              <div class="callout">
+                <strong>The 4 key areas</strong>
+                <ul class="list">
+                  <li><strong>3D Viewport</strong> – where you build and edit models.</li>
+                  <li><strong>Outliner</strong> – list of everything in your scene (organise + select).</li>
+                  <li><strong>Timeline</strong> – for animation (we’ll mostly ignore today).</li>
+                  <li><strong>Properties</strong> – where you change object settings (materials, modifiers, etc.).</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <strong>3D axes (the 3 directions)</strong>
+                <ul class="list">
+                  <li><span class="kbd">X</span> = left/right</li>
+                  <li><span class="kbd">Y</span> = forward/back</li>
+                  <li><span class="kbd">Z</span> = up/down</li>
+                </ul>
+                <p class="small">Tip: in the Viewport, use the axis gizmo in the top-right to align your view.</p>
+              </div>
+            </div>
+
+            <div class="steps">
+              <div class="step" data-step="layout-1">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="layout-1">✓</div>
+                    <div>
+                      <h3>Find the 3D Viewport</h3>
+                      <p>Largest area. You’ll do most work here.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="layout-2">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="layout-2">✓</div>
+                    <div>
+                      <h3>Use the Outliner to select</h3>
+                      <p>Click an object name in the Outliner to select it even if it’s hard to click in 3D.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="layout-3">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="layout-3">✓</div>
+                    <div>
+                      <h3>Spot the Properties panel</h3>
+                      <p>This is where you find modifiers, materials, and object settings.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="layout-4">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="layout-4">✓</div>
+                    <div>
+                      <h3>Use the axis gizmo</h3>
+                      <p>Top-right of the Viewport. Click the little axis “bubbles” to align views.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="layout-5">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="layout-5">✓</div>
+                    <div>
+                      <h3>Find the 3D cursor</h3>
+                      <p>A red/white circle. Be careful: some tools behave differently depending on where your mouse is.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="layout-6">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="layout-6">✓</div>
+                    <div>
+                      <h3>Control tip: move your mouse away from the cursor</h3>
+                      <p>Before pressing a shortcut key, keep your mouse near the edge of the Viewport for steadier control.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <details>
+              <summary>Teacher notes (optional)</summary>
+              <ul class="list">
+                <li>Quickly demo “select in Outliner → press <span class="kbd">Home</span> to focus”.</li>
+                <li>Remind pupils that Blender is always thinking about the last clicked area (mouse pointer matters).</li>
+              </ul>
+            </details>
+          </div>
+        </section>
+
+        <!-- Controls -->
+        <section class="card" data-section="controls" data-title="Controls you must know" data-steps="8">
+          <div class="hd">
+            <h2>Controls you must know</h2>
+            <p>These shortcuts are your “power moves”. Learn them now; you’ll use them constantly.</p>
+          </div>
+          <div class="bd">
+            <div class="callout ok">
+              <strong>Golden rule</strong>
+              <p>If you start a move/rotate/scale and it goes wrong: <span class="kbd">Right Click</span> cancels. <span class="kbd">Ctrl + Z</span> undoes.</p>
+            </div>
+
+            <div class="steps">
+              <div class="step" data-step="controls-1">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="controls-1">✓</div>
+                    <div>
+                      <h3>Select + confirm + cancel</h3>
+                      <p><span class="kbd">Left Click</span> confirms an action; <span class="kbd">Right Click</span> cancels an action.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="controls-2">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="controls-2">✓</div>
+                    <div>
+                      <h3>Move (Grab)</h3>
+                      <p>Press <span class="kbd">G</span> then move your mouse. Tap <span class="kbd">X</span>, <span class="kbd">Y</span>, or <span class="kbd">Z</span> to lock to an axis.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="controls-3">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="controls-3">✓</div>
+                    <div>
+                      <h3>Rotate</h3>
+                      <p>Press <span class="kbd">R</span> then move mouse. Tap <span class="kbd">X/Y/Z</span> to rotate on one axis.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="controls-4">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="controls-4">✓</div>
+                    <div>
+                      <h3>Scale</h3>
+                      <p>Press <span class="kbd">S</span> then move mouse. Tap <span class="kbd">X/Y/Z</span> to scale on one axis.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="controls-5">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="controls-5">✓</div>
+                    <div>
+                      <h3>Undo / redo</h3>
+                      <p><span class="kbd">Ctrl + Z</span> undo, <span class="kbd">Shift + Ctrl + Z</span> redo.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="controls-6">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="controls-6">✓</div>
+                    <div>
+                      <h3>Orbit / pan / zoom</h3>
+                      <p>In the Viewport: scroll middle mouse to zoom. Middle mouse drag to orbit. <span class="kbd">Shift</span> + middle mouse drag to pan.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="controls-7">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="controls-7">✓</div>
+                    <div>
+                      <h3>Edit Mode selection</h3>
+                      <p>In Edit Mode: <span class="kbd">1</span> vertices, <span class="kbd">2</span> edges, <span class="kbd">3</span> faces.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="controls-8">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="controls-8">✓</div>
+                    <div>
+                      <h3>Extrude (in Edit Mode)</h3>
+                      <p>Press <span class="kbd">E</span> to extrude and grow your model.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="quiz" aria-label="Mini quiz">
+              <div class="q" data-q="q1">
+                <h4>Quick check: Which key moves an object?</h4>
+                <div class="opt" data-a="wrong">R</div>
+                <div class="opt" data-a="correct">G</div>
+                <div class="opt" data-a="wrong">E</div>
+              </div>
+              <div class="q" data-q="q2">
+                <h4>Quick check: How do you cancel a move if it goes wrong?</h4>
+                <div class="opt" data-a="correct">Right Click</div>
+                <div class="opt" data-a="wrong">Space</div>
+                <div class="opt" data-a="wrong">Tab</div>
+              </div>
+              <div class="q" data-q="q3">
+                <h4>Quick check: In Edit Mode, what does <span class="kbd">3</span> select?</h4>
+                <div class="opt" data-a="wrong">Vertices</div>
+                <div class="opt" data-a="wrong">Edges</div>
+                <div class="opt" data-a="correct">Faces</div>
+              </div>
+              <div class="callout small">
+                <strong>Quiz tip:</strong> If you get it wrong, try again. This quiz doesn’t affect your step progress.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Pin -->
+        <section class="card" data-section="pin" data-title="Build a bowling pin" data-steps="10">
+          <div class="hd">
+            <h2>Build a bowling pin</h2>
+            <p>We’ll start from a cylinder, then extrude + scale to form the pin shape.</p>
+          </div>
+          <div class="bd">
+            <div class="callout">
+              <strong>Goal</strong>
+              <p>One finished pin that looks smooth, ready to duplicate into a full set of 10.</p>
+            </div>
+
+            <div class="steps">
+              <div class="step" data-step="pin-1">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="pin-1">✓</div>
+                    <div>
+                      <h3>Clear the scene</h3>
+                      <p>If anything is in the scene (like the cube), select it and delete it.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="pin-2">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="pin-2">✓</div>
+                    <div>
+                      <h3>Add the cylinder base</h3>
+                      <p><span class="kbd">Add → Mesh → Cylinder</span> (Object Mode).</p>
+                      <ul class="list">
+                        <li>Bottom-left “Add Cylinder” panel: set <strong>Vertices</strong> to <strong>8</strong>, <strong>Radius</strong> to <strong>0.5m</strong>, <strong>Depth</strong> to <strong>0.1m</strong>.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="pin-3">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="pin-3">✓</div>
+                    <div>
+                      <h3>Go into Edit Mode</h3>
+                      <p>Press <span class="kbd">Tab</span> (or use the mode dropdown).</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="pin-4">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="pin-4">✓</div>
+                    <div>
+                      <h3>Face select mode</h3>
+                      <p>Press <span class="kbd">3</span> (Face select). Click empty space to deselect, then select the <strong>top face</strong>.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="pin-5">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="pin-5">✓</div>
+                    <div>
+                      <h3>Extrude up (start the body)</h3>
+                      <p>Press <span class="kbd">E</span> to extrude upward, then click to confirm.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="pin-6">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="pin-6">✓</div>
+                    <div>
+                      <h3>Scale to shape</h3>
+                      <p>Press <span class="kbd">S</span> to scale in/out. Repeat extrude + scale up the pin.</p>
+                      <ul class="list">
+                        <li>Wider for the body</li>
+                        <li>Narrow for the neck</li>
+                        <li>Wider again for the head</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="pin-7">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="pin-7">✓</div>
+                    <div>
+                      <h3>Round it using edge loops (optional but recommended)</h3>
+                      <p>Press <span class="kbd">2</span> (Edge select). Use <span class="kbd">Shift + Alt + Left Click</span> to select a horizontal edge loop, then <span class="kbd">S</span> to shape it.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="pin-8">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="pin-8">✓</div>
+                    <div>
+                      <h3>Add Subdivision Surface</h3>
+                      <p>Back to Object Mode. Properties → <strong>Modifiers</strong> → Add Modifier → <strong>Subdivision Surface</strong>.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="pin-9">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="pin-9">✓</div>
+                    <div>
+                      <h3>Shade Smooth</h3>
+                      <p>Right click the pin → <strong>Shade Smooth</strong>.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="pin-10">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="pin-10">✓</div>
+                    <div>
+                      <h3>Save your work</h3>
+                      <p><span class="kbd">File → Save</span> into Documents with a sensible name (e.g. <span class="kbd">bowling_alley.blend</span>).</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <details>
+              <summary>Want stripes? (Texture painting – optional extension)</summary>
+              <ol class="list">
+                <li>Create a 1000×1000 PNG in Paint and save it in Documents.</li>
+                <li>Material Properties → <strong>New</strong>, then change the lower-left editor to <strong>Shader Editor</strong>.</li>
+                <li>Add an <strong>Image Texture</strong> node, connect it to Principled BSDF, then open your PNG.</li>
+                <li>In Edit Mode: press <span class="kbd">A</span> (select all), UV → <strong>Smart UV Project</strong>.</li>
+                <li>Switch to <strong>Texture Paint</strong> mode and paint stripes.</li>
+                <li>Save images: <strong>Save All Images</strong>.</li>
+              </ol>
+            </details>
+          </div>
+        </section>
+
+        <!-- Ball -->
+        <section class="card" data-section="ball" data-title="Build a bowling ball" data-steps="9">
+          <div class="hd">
+            <h2>Build a bowling ball</h2>
+            <p>Start from a UV Sphere, then extrude faces inward to create finger holes.</p>
+          </div>
+          <div class="bd">
+            <div class="callout">
+              <strong>Tip</strong>
+              <p>If you already have your pin in the scene, you can hide it in the Outliner using the eye icon, then reveal it later.</p>
+            </div>
+
+            <div class="steps">
+              <div class="step" data-step="ball-1">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="ball-1">✓</div>
+                    <div>
+                      <h3>Add a UV Sphere</h3>
+                      <p>Object Mode: <span class="kbd">Add → Mesh → UV Sphere</span>.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="ball-2">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="ball-2">✓</div>
+                    <div>
+                      <h3>Set size + height</h3>
+                      <p>Bottom-left “Add” panel: set <strong>Location Z</strong> to <strong>0.8m</strong>, <strong>Radius</strong> to <strong>0.8m</strong>.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="ball-3">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="ball-3">✓</div>
+                    <div>
+                      <h3>Go to Edit Mode</h3>
+                      <p>Press <span class="kbd">Tab</span>.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="ball-4">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="ball-4">✓</div>
+                    <div>
+                      <h3>Face select mode</h3>
+                      <p>Press <span class="kbd">3</span>. Click empty space to deselect.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="ball-5">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="ball-5">✓</div>
+                    <div>
+                      <h3>Select 3 faces for finger holes</h3>
+                      <p>Hold <span class="kbd">Shift</span> and left click three faces (close together) where fingers would go.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="ball-6">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="ball-6">✓</div>
+                    <div>
+                      <h3>Extrude inward (twice)</h3>
+                      <p>Press <span class="kbd">E</span> and move slightly inward. Repeat so the holes go deeper.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="ball-7">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="ball-7">✓</div>
+                    <div>
+                      <h3>Add Subdivision Surface</h3>
+                      <p>Object Mode: add Subdivision Surface and set Levels Viewport from 1 to 2.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="ball-8">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="ball-8">✓</div>
+                    <div>
+                      <h3>Shade Smooth</h3>
+                      <p>Right click the ball → <strong>Shade Smooth</strong>.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="ball-9">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="ball-9">✓</div>
+                    <div>
+                      <h3>Save again</h3>
+                      <p><span class="kbd">File → Save</span>. If you made textures, remember <strong>Save All Images</strong>.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <details>
+              <summary>Optional extension: colour + texture</summary>
+              <ol class="list">
+                <li>Create a 1000×1000 PNG (single colour or a cool pattern).</li>
+                <li>Material Properties → New → Shader Editor → Image Texture → Open PNG.</li>
+                <li>If painting: UV → Smart UV Project, then Texture Paint mode.</li>
+              </ol>
+            </details>
+          </div>
+        </section>
+
+        <!-- Alley -->
+        <section class="card" data-section="alley" data-title="Build the bowling alley scene" data-steps="10">
+          <div class="hd">
+            <h2>Build the bowling alley scene</h2>
+            <p>Create the lane, place the pins, then position the ball ready to roll.</p>
+          </div>
+          <div class="bd">
+            <div class="callout ok">
+              <strong>Scene-building mindset</strong>
+              <p>Use <span class="kbd">G</span> to move and <span class="kbd">X/Y/Z</span> to lock movement. Keep your camera sensible and objects aligned.</p>
+            </div>
+
+            <div class="steps">
+              <div class="step" data-step="alley-1">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="alley-1">✓</div>
+                    <div>
+                      <h3>Add a lane (Plane)</h3>
+                      <p>Object Mode: <span class="kbd">Add → Mesh → Plane</span>.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="alley-2">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="alley-2">✓</div>
+                    <div>
+                      <h3>Scale the lane</h3>
+                      <p>Select the plane → press <span class="kbd">S</span> to scale. Use <span class="kbd">S</span> then <span class="kbd">X</span> or <span class="kbd">Y</span> to stretch it long like a bowling lane.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="alley-3">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="alley-3">✓</div>
+                    <div>
+                      <h3>Move the pin onto the lane</h3>
+                      <p>Select pin → <span class="kbd">G</span> to move, then <span class="kbd">Z</span> to lift/drop onto the plane.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="alley-4">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="alley-4">✓</div>
+                    <div>
+                      <h3>Duplicate pins</h3>
+                      <p>Select pin → <span class="kbd">Shift + D</span> to duplicate → move into position.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="alley-5">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="alley-5">✓</div>
+                    <div>
+                      <h3>Make a triangle set (10 pins)</h3>
+                      <p>Arrange pins in rows: 4, then 3, then 2, then 1. Use the Outliner to select easily.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="alley-6">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="alley-6">✓</div>
+                    <div>
+                      <h3>Bring in the ball</h3>
+                      <p>Reveal the ball (if hidden) and move it to the start of the lane.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="alley-7">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="alley-7">✓</div>
+                    <div>
+                      <h3>Make it yours: add gutters or walls (extension)</h3>
+                      <p>Add two long cubes as gutters/walls. Scale and place them along the lane edges.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="alley-8">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="alley-8">✓</div>
+                    <div>
+                      <h3>Materials (simple)</h3>
+                      <p>Give the lane a wood-like colour (Material Properties → New → Base Color).</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="alley-9">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="alley-9">✓</div>
+                    <div>
+                      <h3>Check your scene</h3>
+                      <p>Orbit around. If anything is floating or clipping: select it and press <span class="kbd">G</span> then <span class="kbd">Z</span> to fix height.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="alley-10">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="alley-10">✓</div>
+                    <div>
+                      <h3>Final save</h3>
+                      <p><span class="kbd">File → Save</span>. Screenshot your model for submission if your teacher asks.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <details>
+              <summary>Challenge tasks (choose 1–3)</summary>
+              <ul class="list">
+                <li>Add lane arrows / markings using texture paint.</li>
+                <li>Model a simple “pinsetter” box at the end of the lane.</li>
+                <li>Make a neon sign using emissive material (teacher demo).</li>
+                <li>Animate the ball rolling (Timeline + keyframes) — stretch goal.</li>
+              </ul>
+            </details>
+          </div>
+        </section>
+
+        <!-- Troubleshooting -->
+        <section class="card" data-section="help" data-title="Fix common problems" data-steps="6">
+          <div class="hd">
+            <h2>Fix common problems</h2>
+            <p>Most Blender problems are “wrong mode”, “wrong selection”, or “lost camera”.</p>
+          </div>
+          <div class="bd">
+            <div class="steps">
+              <div class="step" data-step="help-1">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="help-1">✓</div>
+                    <div>
+                      <h3>“My shortcut didn’t work”</h3>
+                      <p>Click inside the 3D Viewport first. Blender uses the area your mouse is in.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="help-2">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="help-2">✓</div>
+                    <div>
+                      <h3>“I can’t extrude”</h3>
+                      <p>You must be in <strong>Edit Mode</strong> and have something selected (face/edge/vertex).</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="help-3">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="help-3">✓</div>
+                    <div>
+                      <h3>“My object vanished”</h3>
+                      <p>Check the Outliner eye icon (object might be hidden). Or press <span class="kbd">Home</span> after selecting it in the Outliner.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="help-4">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="help-4">✓</div>
+                    <div>
+                      <h3>“Everything is orange!”</h3>
+                      <p>That means you selected multiple objects/faces. Click empty space to deselect, or use the Outliner.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="help-5">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="help-5">✓</div>
+                    <div>
+                      <h3>“My ball holes look sharp”</h3>
+                      <p>Use Subdivision Surface and Shade Smooth. Increase Subdivision levels if needed.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step" data-step="help-6">
+                <div class="stephead">
+                  <div class="left">
+                    <div class="tick" role="checkbox" tabindex="0" aria-checked="false" data-tick="help-6">✓</div>
+                    <div>
+                      <h3>“I forgot to save my texture paint”</h3>
+                      <p>In Blender: use <strong>Save All Images</strong>. Then save the .blend file.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="callout small printnone">
+              <strong>Teacher tip:</strong> If pupils are stuck, ask: “Are you in Object Mode or Edit Mode?” first.
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="card" style="background:rgba(18,26,51,.35)">
+      <div class="bd">
+        <div class="row">
+          <div class="pill"><b>Teacher</b> version-friendly</div>
+          <div class="pill">Works offline</div>
+          <div class="pill">Self-contained HTML</div>
+        </div>
+        <div class="hr"></div>
+        <p class="small">
+          This page saves tick progress in your browser. If you open it on a different device/browser, it starts fresh.
+          For GitHub Pages: commit this file as <span class="kbd">index.html</span> in your repository.
+        </p>
+        <p class="small">
+          Keyboard shortcuts referenced: <span class="kbd">G</span> Move, <span class="kbd">R</span> Rotate, <span class="kbd">S</span> Scale, <span class="kbd">E</span> Extrude, <span class="kbd">Tab</span> Edit/Object Mode, <span class="kbd">Ctrl+Z</span> Undo, <span class="kbd">Shift+Ctrl+Z</span> Redo, <span class="kbd">Home</span> Focus.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const STORAGE_KEY = "blenderBowlingKS3.progress.v1";
+  const $ = (sel, el=document) => el.querySelector(sel);
+  const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+
+  function loadState(){
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
+    catch(e){ return {}; }
+  }
+  function saveState(state){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+  function setTick(id, done){
+    const state = loadState();
+    state[id] = !!done;
+    saveState(state);
+    render();
+  }
+  function toggleTick(id){
+    const state = loadState();
+    state[id] = !state[id];
+    saveState(state);
+    render();
+  }
+  function clearState(){
+    localStorage.removeItem(STORAGE_KEY);
+    render();
+  }
+
+  function allTickIds(){
+    return $$(".tick").map(t => t.dataset.tick);
+  }
+
+  function progress(){
+    const state = loadState();
+    const ids = allTickIds();
+    const done = ids.filter(id => state[id]).length;
+    const pct = ids.length ? Math.round((done / ids.length) * 100) : 0;
+    return {done, total: ids.length, pct};
+  }
+
+  function render(){
+    const state = loadState();
+    // ticks
+    $$(".tick").forEach(t => {
+      const id = t.dataset.tick;
+      const done = !!state[id];
+      t.classList.toggle("done", done);
+      t.setAttribute("aria-checked", done ? "true" : "false");
+    });
+
+    // nav
+    $$(".navitem").forEach(item => {
+      const section = item.dataset.section;
+      const ids = $$(\`section[data-section="\${section}"] .tick\`).map(t => t.dataset.tick);
+      const done = ids.filter(id => state[id]).length;
+      const total = ids.length;
+      const badge = item.querySelector(".badge");
+      if(badge){
+        badge.textContent = `${done}/${total}`;
+        badge.classList.toggle("done", done === total && total > 0);
+      }
+    });
+
+    const p = progress();
+    $("#progressText").textContent = `${p.pct}%`;
+    $("#progressFill").style.width = `${p.pct}%`;
+  }
+
+  function buildNav(){
+    const nav = $("#navList");
+    const sections = $$("section.card");
+    nav.innerHTML = "";
+    sections.forEach((sec, i) => {
+      const id = sec.dataset.section;
+      const title = sec.dataset.title || "Section";
+      const item = document.createElement("div");
+      item.className = "navitem";
+      item.dataset.section = id;
+      item.innerHTML = `<span>${i+1}. ${title}</span><span class="badge">0/0</span>`;
+      item.addEventListener("click", () => {
+        sec.scrollIntoView({behavior:"smooth", block:"start"});
+        setActiveNav(id);
+      });
+      nav.appendChild(item);
+    });
+    setActiveNav(sections[0]?.dataset.section);
+  }
+
+  function setActiveNav(sectionId){
+    $$(".navitem").forEach(n => n.classList.toggle("active", n.dataset.section === sectionId));
+  }
+
+  // track active section on scroll
+  function onScroll(){
+    const sections = $$("section.card");
+    const y = window.scrollY + 110;
+    let current = sections[0]?.dataset.section;
+    for(const sec of sections){
+      if(sec.offsetTop <= y) current = sec.dataset.section;
+    }
+    if(current) setActiveNav(current);
+  }
+
+  // quiz
+  function setupQuiz(){
+    $$(".q").forEach(q => {
+      $$(".opt", q).forEach(opt => {
+        opt.addEventListener("click", () => {
+          // reset styling
+          $$(".opt", q).forEach(o => o.classList.remove("correct","wrong"));
+          opt.classList.add(opt.dataset.a === "correct" ? "correct" : "wrong");
+        });
+      });
+    });
+  }
+
+  // export checklist
+  function exportChecklist(){
+    const state = loadState();
+    const ids = allTickIds();
+    const lines = [];
+    lines.push("Blender Bowling Alley (KS3) – My Checklist");
+    lines.push("Generated: " + new Date().toLocaleString());
+    lines.push("");
+    $$("section.card").forEach(sec => {
+      const title = sec.querySelector(".hd h2")?.textContent?.trim() || sec.dataset.title || "Section";
+      lines.push("== " + title + " ==");
+      const steps = $$(".step", sec);
+      steps.forEach(step => {
+        const tick = $(".tick", step);
+        const key = tick?.dataset.tick;
+        const done = key ? !!state[key] : false;
+        const h3 = step.querySelector("h3")?.textContent?.trim() || "Step";
+        lines.push((done ? "[x] " : "[ ] ") + h3);
+      });
+      lines.push("");
+    });
+
+    const blob = new Blob([lines.join("\n")], {type:"text/plain;charset=utf-8"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "blender_bowling_alley_checklist.txt";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      URL.revokeObjectURL(a.href);
+      a.remove();
+    }, 0);
+  }
+
+  function setup(){
+    buildNav();
+    setupQuiz();
+
+    // tick handlers
+    $$(".tick").forEach(t => {
+      t.addEventListener("click", () => toggleTick(t.dataset.tick));
+      t.addEventListener("keydown", (e) => {
+        if(e.key === "Enter" || e.key === " "){
+          e.preventDefault();
+          toggleTick(t.dataset.tick);
+        }
+      });
+    });
+
+    $("#btnReset").addEventListener("click", () => {
+      const ok = confirm("Reset all ticks? This cannot be undone.");
+      if(ok) clearState();
+    });
+
+    $("#btnPrint").addEventListener("click", () => window.print());
+    $("#btnExport").addEventListener("click", () => exportChecklist());
+
+    window.addEventListener("scroll", onScroll, {passive:true});
+    render();
+  }
+
+  setup();
+})();
+</script>
+</body>
+</html>
