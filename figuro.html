@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Figuro 3D: Bowling Alley Project (KS3/KS4 Enrichment)</title>
-  <meta name="description" content="Step-by-step KS3/KS4 enrichment worksheet for creating a bowling alley model in Figuro.io (online 3D modelling)." />
+  <title>Figuro: Bowling Alley Project (Pupil Version)</title>
+  <meta name="description" content="Pupil step-by-step guide for creating a bowling alley scene in Figuro.io." />
   <style>
     :root{
       /* Default theme (Canva Light-ish) */
@@ -19,7 +19,6 @@
       --accent-2: #7c3aed;
 
       --good: #16a34a;
-      --warn: #f59e0b;
 
       --shadow: 0 10px 30px rgba(0,0,0,.08);
       --radius: 16px;
@@ -44,7 +43,7 @@
     [data-theme="google"]{
       --bg:#ffffff; --surface:#ffffff; --surface-2:#f3f4f6;
       --text:#111827; --muted:#4b5563; --border:#e5e7eb;
-      --accent:#1a73e8; --accent-2:#34a853; /* blue + green */
+      --accent:#1a73e8; --accent-2:#34a853;
     }
     [data-theme="twitch"]{
       --bg:#0e0a14; --surface:#151022; --surface-2:#0f0b18;
@@ -75,8 +74,7 @@
       font-family:var(--sans);
       line-height:1.5;
     }
-    a{ color:inherit; text-decoration: none; }
-    a.link{ text-decoration: underline; text-underline-offset: 3px; }
+    a{ color:inherit; text-decoration:none; }
     .wrap{ max-width: 980px; margin: 0 auto; padding: 20px 16px 80px; }
 
     header.site{
@@ -123,11 +121,10 @@
       background: linear-gradient(135deg,
         color-mix(in srgb, var(--accent) 22%, var(--surface)),
         color-mix(in srgb, var(--accent-2) 18%, var(--surface)));
+      font-weight:600;
     }
 
-    .hero{
-      padding: 22px 0 10px;
-    }
+    .hero{ padding: 22px 0 10px; }
     .hero h2{
       margin: 12px 0 6px;
       font-size: 34px;
@@ -210,8 +207,9 @@
     }
 
     .content p{ margin: 10px 0; }
-    .content ul{ margin: 8px 0 8px 18px; }
+    .content ul, .content ol{ margin: 8px 0 8px 18px; }
     .content li{ margin: 6px 0; }
+
     .callout{
       margin: 12px 0;
       padding: 12px 12px;
@@ -222,6 +220,7 @@
         color-mix(in srgb, var(--accent-2) 8%, var(--surface)));
     }
     .callout strong{ display:block; margin-bottom: 6px; }
+
     kbd{
       font-family: var(--mono);
       font-size: 12px;
@@ -230,48 +229,20 @@
       border: 1px solid var(--border);
       background: color-mix(in srgb, var(--surface-2) 70%, transparent);
     }
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-    @media (min-width: 820px){
-      .grid.two{ grid-template-columns: 1fr 1fr; }
-    }
 
-    details.notes{
+    details.hint{
       margin-top: 12px;
       border: 1px dashed color-mix(in srgb, var(--border) 80%, var(--muted));
       border-radius: 14px;
       padding: 10px 12px;
       background: color-mix(in srgb, var(--surface) 92%, transparent);
     }
-    details.notes summary{
+    details.hint summary{
       cursor:pointer;
       font-weight:600;
       color: color-mix(in srgb, var(--text) 92%, var(--muted));
     }
-    details.notes p, details.notes ul{ color: var(--muted); }
-
-    .media{
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: color-mix(in srgb, var(--surface-2) 70%, transparent);
-      overflow:hidden;
-    }
-    .media .ph{
-      padding: 18px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-    .media .ph code{
-      font-family: var(--mono);
-      font-size: 13px;
-      padding: 2px 6px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: color-mix(in srgb, var(--surface) 85%, transparent);
-    }
+    details.hint p, details.hint ul{ color: var(--muted); }
 
     .check{
       margin-top: 14px;
@@ -281,11 +252,13 @@
       gap: 10px; flex-wrap:wrap;
     }
     .check label{
-      display:flex; align-items:center; gap:10px;
+      display:flex; align-items:flex-start; gap:10px;
       font-weight: 600;
+      max-width: 760px;
     }
     .check input[type="checkbox"]{
       width: 18px; height: 18px;
+      margin-top: 2px;
       accent-color: var(--accent);
     }
     .check .status{
@@ -310,6 +283,7 @@
     .navbtn:hover{
       border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
     }
+
     footer{
       margin-top: 26px;
       color: var(--muted);
@@ -324,8 +298,8 @@
 <header class="site" aria-label="Top navigation">
   <div class="topbar">
     <div class="brand">
-      <h1>Figuro 3D: Bowling Alley Project</h1>
-      <span class="pill">KS3 / KS4 • Enrichment • Step-by-step</span>
+      <h1>Figuro: Bowling Alley Project</h1>
+      <span class="pill">Pupil version • Tick as you go</span>
     </div>
 
     <div class="controls">
@@ -338,123 +312,114 @@
         <option value="dark">Dark Mode</option>
         <option value="canva-light" selected>Canva Light</option>
       </select>
-      <button id="toggleNotes" class="primary" type="button">Show notes</button>
+      <button id="reset" class="primary" type="button" title="Untick everything on this device">Reset ticks</button>
     </div>
   </div>
 </header>
 
 <div class="wrap">
   <div class="hero" id="top">
-    <h2>Create Your Own Bowling Alley (in Figuro.io)</h2>
+    <h2>Build a Bowling Alley (Figuro.io)</h2>
     <p>
-      You’ll build a <strong>bowling pin</strong>, a <strong>bowling ball</strong>, and a <strong>bowling lane</strong> using Figuro — a free online 3D modeller.
-      Work through the steps in order and tick each knowledge check.
+      Make a <strong>bowling pin</strong>, a <strong>bowling ball</strong>, and a <strong>bowling lane</strong>.
+      Do each step in order. Tick the box when you can do it.
     </p>
     <div class="meta">
-      <span class="tag">Outcome: 3D model (OBJ/STL) or screenshot</span>
-      <span class="tag">Suggested time: 45–60 mins</span>
-      <span class="tag">Rule: Don’t jump ahead — follow the steps</span>
+      <span class="tag">You can work in pairs</span>
+      <span class="tag">If stuck: re-read the last step</span>
+      <span class="tag">Undo is normal: <kbd>Ctrl</kbd> + <kbd>Z</kbd></span>
     </div>
 
     <div class="progress" role="status" aria-live="polite">
       <div>
-        <strong id="progressText">Progress: 0/9 checks complete</strong><br/>
-        <span class="small">Your ticks are saved on this device.</span>
+        <strong id="progressText">Progress: 0/9 ticks</strong><br/>
+        <span class="small">Your ticks save on this device.</span>
       </div>
       <div class="bar" aria-hidden="true"><div id="progressBar"></div></div>
+    </div>
+
+    <div class="callout">
+      <strong>Open Figuro</strong>
+      <div>Go to Figuro in your browser and start a new scene. Keep this page open for instructions.</div>
     </div>
   </div>
 
   <!-- STEP 1 -->
-  <section class="step" id="step-1" data-title="Welcome to 3D modelling">
+  <section class="step" id="step-1" data-title="Start + goal">
     <div class="stephead">
       <div class="stepnum">
         <div class="badge">1</div>
         <div>
-          <h3>Welcome to 3D Modelling!</h3>
-          <div class="stepmeta">What you’re doing today</div>
+          <h3>What you are making today</h3>
+          <div class="stepmeta">Bowling pin + ball + lane</div>
         </div>
       </div>
     </div>
 
     <div class="content">
       <ul>
-        <li><strong>What is Figuro?</strong> A browser-based tool for making 3D models using polygons (faces/edges/vertices).</li>
-        <li><strong>Our goal:</strong> Build a bowling pin, a bowling ball, and a lane in one scene.</li>
-        <li><strong>Today’s rule:</strong> Follow the steps carefully. If you get stuck, re-read the last instruction and ask your partner.</li>
+        <li>You are making a simple 3D scene.</li>
+        <li>Your scene needs: <strong>1 lane</strong>, <strong>10 pins</strong>, and <strong>1 ball</strong>.</li>
+        <li>Work carefully — small moves are better than huge moves.</li>
       </ul>
 
-      <details class="notes">
-        <summary>Teacher notes (30 seconds)</summary>
-        <ul>
-          <li>Quick demo: orbit / pan / zoom, then move a cube.</li>
-          <li>Keep it “one tool at a time”. Prevent random clicking.</li>
-          <li>Success criteria: Pin + ball + lane visible and positioned.</li>
-        </ul>
+      <details class="hint">
+        <summary>Hint if you’re stuck</summary>
+        <p>Ask: “Am I in the right mode?” (Object vs Face mode). If not sure, press <kbd>A</kbd> for Object mode.</p>
       </details>
     </div>
 
     <div class="check">
       <label><input type="checkbox" class="kc" data-step="1" />
-        Knowledge Check: I know I am using Figuro to create 3D objects for a scene.
+        I know the goal: a lane, 10 pins, and a ball in one scene.
       </label>
       <div class="status" id="status-1"></div>
     </div>
 
     <div class="navrow">
-      <a class="navbtn" href="#top">↺ Restart</a>
+      <a class="navbtn" href="#top">↺ Top</a>
       <a class="navbtn" href="#step-2">Next ▶</a>
     </div>
   </section>
 
   <!-- STEP 2 -->
-  <section class="step" id="step-2" data-title="The main areas of Figuro">
+  <section class="step" id="step-2" data-title="Camera controls">
     <div class="stephead">
       <div class="stepnum">
         <div class="badge">2</div>
         <div>
-          <h3>The Main Areas of Figuro</h3>
-          <div class="stepmeta">Where things live on the screen</div>
+          <h3>Camera controls</h3>
+          <div class="stepmeta">Zoom, orbit, pan</div>
         </div>
       </div>
     </div>
 
-    <div class="content grid two">
-      <div>
-        <p>Most of your time will be split across these areas:</p>
-        <ul>
-          <li><strong>3D Viewport:</strong> The main stage where you see and edit your model.</li>
-          <li><strong>Tool shortcuts:</strong> Use keys like <kbd>W</kbd> <kbd>E</kbd> <kbd>R</kbd> for transform tools and more.</li>
-          <li><strong>Mode shortcuts:</strong> Switch what you’re editing (object vs faces/edges/vertices) using <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> <kbd>F</kbd> <kbd>G</kbd>.</li>
-          <li><strong>On-screen controls:</strong> Many tools show a gizmo and/or numeric fields you can tweak.</li>
-        </ul>
+    <div class="content">
+      <ul>
+        <li><kbd>Mouse wheel</kbd> = zoom</li>
+        <li><kbd>Right mouse drag</kbd> = orbit (spin around)</li>
+        <li><kbd>Middle mouse drag</kbd> = pan (slide view)</li>
+        <li><kbd>Shift</kbd> + <kbd>Right mouse drag</kbd> = pan</li>
+        <li><kbd>Ctrl</kbd> + <kbd>Right mouse drag</kbd> = zoom</li>
+      </ul>
 
-        <div class="callout">
-          <strong>Behaviour to learn:</strong>
-          <div>Viewport first → choose the correct <em>mode</em> → choose the correct <em>tool</em> → then edit.</div>
-        </div>
+      <div class="callout">
+        <strong>Mini challenge:</strong>
+        <div>Orbit around the centre, zoom in, then pan so you can still see your model.</div>
       </div>
 
-      <div class="media">
-        <div class="ph">
-          <strong>Optional screenshot placeholder</strong><br/>
-          If you want a picture here later, replace this box with an <code>&lt;img&gt;</code> (e.g. “Figuro interface overview”).<br/><br/>
-          Tip: you can also embed a short help video with <code>&lt;iframe&gt;</code> if YouTube embeds aren’t blocked.
-        </div>
-      </div>
-
-      <details class="notes" style="grid-column:1/-1;">
-        <summary>Teacher notes</summary>
+      <details class="hint">
+        <summary>Hint if you “lost” your model</summary>
         <ul>
-          <li>Students often confuse “tool” and “mode”. Keep repeating: <em>mode decides what you edit</em>.</li>
-          <li>If they can’t select faces, they’re in the wrong mode.</li>
+          <li>Zoom out a lot, then orbit slowly.</li>
+          <li>If you selected something, try moving it slightly to see where it is.</li>
         </ul>
       </details>
     </div>
 
     <div class="check">
       <label><input type="checkbox" class="kc" data-step="2" />
-        Knowledge Check: I understand the 3D Viewport is the main area where I build my models.
+        I can zoom, orbit, and pan to control my view.
       </label>
       <div class="status" id="status-2"></div>
     </div>
@@ -466,68 +431,52 @@
   </section>
 
   <!-- STEP 3 -->
-  <section class="step" id="step-3" data-title="Navigation + 3 axes">
+  <section class="step" id="step-3" data-title="Tools + modes">
     <div class="stephead">
       <div class="stepnum">
         <div class="badge">3</div>
         <div>
-          <h3>Navigation and the 3 Axes</h3>
-          <div class="stepmeta">How to move your camera and understand space</div>
+          <h3>Tools and modes</h3>
+          <div class="stepmeta">What you edit + how you move it</div>
         </div>
       </div>
     </div>
 
-    <div class="content grid two">
-      <div>
-        <p>Everything in 3D uses three directions (axes):</p>
-        <ul>
-          <li><strong>X:</strong> left ↔ right</li>
-          <li><strong>Y:</strong> forward ↔ backward</li>
-          <li><strong>Z:</strong> up ↔ down</li>
-        </ul>
-
-        <p><strong>Camera controls (mouse):</strong></p>
-        <ul>
-          <li><kbd>Mousewheel</kbd> = zoom</li>
-          <li><kbd>Drag Right Mouse</kbd> = orbit around</li>
-          <li><kbd>Drag Middle Mouse</kbd> = pan</li>
-          <li><kbd>Shift</kbd> + <kbd>Drag Right Mouse</kbd> = pan</li>
-          <li><kbd>Ctrl</kbd> + <kbd>Drag Right Mouse</kbd> = zoom</li>
-        </ul>
-
-        <div class="callout">
-          <strong>Rescue tip:</strong>
-          <div>If you “lose” your model, zoom out, then orbit slowly until you find it again.</div>
-        </div>
+    <div class="content">
+      <div class="callout">
+        <strong>Remember:</strong>
+        <div><strong>Mode</strong> = what you’re editing • <strong>Tool</strong> = how you change it</div>
       </div>
 
-      <div>
-        <p><strong>Keyboard navigation (optional):</strong></p>
-        <ul>
-          <li><kbd>Arrow keys</kbd> = navigate camera</li>
-          <li><kbd>Arrow keys</kbd> + <kbd>Drag Right Mouse</kbd> = FPS-style navigation</li>
-        </ul>
+      <p><strong>Tools:</strong></p>
+      <ul>
+        <li><kbd>W</kbd> Move</li>
+        <li><kbd>E</kbd> Scale</li>
+        <li><kbd>R</kbd> Rotate</li>
+      </ul>
 
-        <div class="media">
-          <div class="ph">
-            <strong>Optional: add a diagram</strong><br/>
-            Add an image showing X/Y/Z if you want (many students benefit from a quick visual).
-          </div>
-        </div>
-      </div>
+      <p><strong>Modes:</strong></p>
+      <ul>
+        <li><kbd>A</kbd> Object mode (whole object)</li>
+        <li><kbd>S</kbd> Face mode (polygons)</li>
+        <li><kbd>D</kbd> Edge mode</li>
+        <li><kbd>F</kbd> Vertex mode</li>
+      </ul>
 
-      <details class="notes" style="grid-column:1/-1;">
-        <summary>Teacher notes</summary>
+      <details class="hint">
+        <summary>Hint: quick fixes</summary>
         <ul>
-          <li>Stop anyone “rage scrolling”. Small movements, then reassess.</li>
-          <li>If laptops lack a middle mouse button, use a mouse where possible.</li>
+          <li>Undo: <kbd>Ctrl</kbd> + <kbd>Z</kbd></li>
+          <li>Duplicate: <kbd>Space</kbd> (clone)</li>
+          <li>Delete: <kbd>Del</kbd> or <kbd>Backspace</kbd></li>
+          <li>Snap to grid while moving: hold <kbd>X</kbd></li>
         </ul>
       </details>
     </div>
 
     <div class="check">
       <label><input type="checkbox" class="kc" data-step="3" />
-        Knowledge Check: I can identify that the Z axis represents “Up and Down”.
+        I can switch to Object mode and Face mode, and I can Move/Scale/Rotate.
       </label>
       <div class="status" id="status-3"></div>
     </div>
@@ -539,69 +488,36 @@
   </section>
 
   <!-- STEP 4 -->
-  <section class="step" id="step-4" data-title="Essential tools + shortcuts">
+  <section class="step" id="step-4" data-title="Make a bowling pin (start)">
     <div class="stephead">
       <div class="stepnum">
         <div class="badge">4</div>
         <div>
-          <h3>Essential Keyboard Shortcuts</h3>
-          <div class="stepmeta">The “must know” set for speed and accuracy</div>
+          <h3>Bowling pin: start shape</h3>
+          <div class="stepmeta">Create a cylinder and select the top face</div>
         </div>
       </div>
     </div>
 
-    <div class="content grid two">
-      <div>
-        <p><strong>Transform tools:</strong></p>
-        <ul>
-          <li><kbd>W</kbd> = Move</li>
-          <li><kbd>E</kbd> = Scale</li>
-          <li><kbd>R</kbd> = Rotate</li>
-        </ul>
+    <div class="content">
+      <ol>
+        <li>Press <kbd>A</kbd> for <strong>Object mode</strong>.</li>
+        <li>Add a <strong>Cylinder</strong> (primitive shape).</li>
+        <li>If you see “Sides/Segments”, set it to <strong>8</strong>.</li>
+        <li>Use <kbd>W</kbd> Move and <kbd>E</kbd> Scale to make it short and chunky.</li>
+        <li>Press <kbd>S</kbd> for <strong>Face mode</strong>.</li>
+        <li>Click the <strong>top face</strong> of the cylinder.</li>
+      </ol>
 
-        <p><strong>Modes (what you are editing):</strong></p>
-        <ul>
-          <li><kbd>A</kbd> Object mode</li>
-          <li><kbd>S</kbd> Polygon (face) mode</li>
-          <li><kbd>D</kbd> Edge mode</li>
-          <li><kbd>F</kbd> Vertex mode</li>
-          <li><kbd>G</kbd> UV mode (advanced — ignore today)</li>
-        </ul>
-      </div>
-
-      <div>
-        <p><strong>Editing + workflow:</strong></p>
-        <ul>
-          <li><kbd>Space</kbd> = clone (duplicate) selected object(s)</li>
-          <li><kbd>Del</kbd> / <kbd>Backspace</kbd> = delete objects or polygons</li>
-          <li><kbd>Ctrl</kbd> + <kbd>Z</kbd> = undo • <kbd>Ctrl</kbd> + <kbd>Y</kbd> = redo</li>
-          <li><kbd>Shift</kbd> + drag (left mouse) = select multiple items</li>
-          <li><kbd>Esc</kbd> or <kbd>Q</kbd> = deselect</li>
-          <li>Hold <kbd>X</kbd> while moving = snap to grid</li>
-        </ul>
-
-        <div class="callout">
-          <strong>Rendering / smoothing (quick preview):</strong>
-          <div>
-            <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> change render mode •
-            <kbd>4</kbd><kbd>5</kbd><kbd>6</kbd><kbd>7</kbd> change subdivision level •
-            <kbd>K</kbd> toggles smooth vs flat shading • <kbd>L</kbd> toggles camera light
-          </div>
-        </div>
-      </div>
-
-      <details class="notes" style="grid-column:1/-1;">
-        <summary>Teacher notes</summary>
-        <ul>
-          <li>Most problems today are: wrong mode, or using rotate when they meant move.</li>
-          <li>Make “undo is normal” explicit. Encourage frequent undo instead of panic.</li>
-        </ul>
+      <details class="hint">
+        <summary>Hint: I can’t select faces</summary>
+        <p>Press <kbd>S</kbd> (Face mode), then click a face. If it still won’t select, click the object first in Object mode.</p>
       </details>
     </div>
 
     <div class="check">
       <label><input type="checkbox" class="kc" data-step="4" />
-        Knowledge Check: I know how to use Move/Scale/Rotate and how to switch to Face (Polygon) mode.
+        I can create a cylinder and select the top face in Face mode.
       </label>
       <div class="status" id="status-4"></div>
     </div>
@@ -613,46 +529,42 @@
   </section>
 
   <!-- STEP 5 -->
-  <section class="step" id="step-5" data-title="Bowling pin (base)">
+  <section class="step" id="step-5" data-title="Shape the bowling pin">
     <div class="stephead">
       <div class="stepnum">
         <div class="badge">5</div>
         <div>
-          <h3>Making the Bowling Pin (Base)</h3>
-          <div class="stepmeta">Start from a cylinder primitive</div>
+          <h3>Bowling pin: shape it</h3>
+          <div class="stepmeta">Extrude → Scale (repeat)</div>
         </div>
       </div>
     </div>
 
     <div class="content">
-      <ol>
-        <li><strong>Create a cylinder</strong> using the shapes/primitive tools (look for <em>Cylinder</em>).</li>
-        <li><strong>Low-poly tip:</strong> if you see a setting like “Sides/Segments”, set it to <strong>8</strong>.</li>
-        <li>Use <kbd>W</kbd> (move) to place it on the “floor”.</li>
-        <li>Use <kbd>E</kbd> (scale) to make it roughly pin-sized (short and chunky to start).</li>
-        <li>Press <kbd>S</kbd> to switch into <strong>Polygon (face) mode</strong>.</li>
-        <li>Click the <strong>top face</strong> so it is selected.</li>
-      </ol>
-
-      <div class="media">
-        <div class="ph">
-          <strong>Optional screenshot placeholder</strong><br/>
-          Add your own screenshot of “Create Cylinder / Select top face” here.
-        </div>
+      <div class="callout">
+        <strong>The pattern:</strong>
+        <div><kbd>T</kbd> Extrude → <kbd>E</kbd> Scale → repeat</div>
       </div>
 
-      <details class="notes">
-        <summary>Teacher notes</summary>
+      <ol>
+        <li>Top face selected? Good. Press <kbd>T</kbd> (Extrude) and pull up a little.</li>
+        <li>Press <kbd>E</kbd> (Scale) and make it slightly thinner.</li>
+        <li>Repeat: extrude up → scale in → extrude up.</li>
+        <li>For the head: extrude a bit, then scale slightly out to round it.</li>
+      </ol>
+
+      <details class="hint">
+        <summary>Hint: make it smoother</summary>
         <ul>
-          <li>If they can’t click a face: they’re not in polygon mode.</li>
-          <li>If their cylinder is tiny/huge: zoom first, then scale.</li>
+          <li>Subdivision level: press <kbd>4</kbd> or <kbd>5</kbd> (don’t go too high).</li>
+          <li>Smooth shading: press <kbd>K</kbd>.</li>
         </ul>
       </details>
     </div>
 
     <div class="check">
       <label><input type="checkbox" class="kc" data-step="5" />
-        Knowledge Check: I can create a cylinder and switch to Polygon (face) mode to select the top face.
+        I can use Extrude and Scale to shape a pin.
       </label>
       <div class="status" id="status-5"></div>
     </div>
@@ -664,62 +576,39 @@
   </section>
 
   <!-- STEP 6 -->
-  <section class="step" id="step-6" data-title="Shape the pin (extrude + scale)">
+  <section class="step" id="step-6" data-title="Make the bowling ball">
     <div class="stephead">
       <div class="stepnum">
         <div class="badge">6</div>
         <div>
-          <h3>Shaping the Pin</h3>
-          <div class="stepmeta">Use the pattern: Extrude → Scale</div>
+          <h3>Bowling ball</h3>
+          <div class="stepmeta">Create a sphere and place it</div>
         </div>
       </div>
     </div>
 
-    <div class="content grid two">
-      <div>
-        <p>To build the pin, we repeat one pattern:</p>
-        <div class="callout">
-          <strong>Pattern:</strong>
-          <div><kbd>T</kbd> Extrude → then <kbd>E</kbd> Scale</div>
-        </div>
+    <div class="content">
+      <ol>
+        <li>Press <kbd>A</kbd> for Object mode.</li>
+        <li>Add a <strong>Sphere</strong>.</li>
+        <li>Use <kbd>W</kbd> Move to place it near the lane.</li>
+        <li>Use <kbd>E</kbd> Scale to make it smaller than the pin base.</li>
+        <li>Optional polish: press <kbd>K</kbd> for smooth shading.</li>
+      </ol>
 
+      <details class="hint">
+        <summary>Optional: finger holes</summary>
         <ol>
-          <li>With the <strong>top face</strong> selected: press <kbd>T</kbd> to use <strong>Extrude</strong>.</li>
-          <li>Pull up a little to extend the body.</li>
-          <li>Press <kbd>E</kbd> to <strong>Scale</strong> the new top face smaller (start forming the neck).</li>
-          <li>Repeat: extrude up → scale in → extrude up → scale slightly out for a rounded head.</li>
+          <li>Press <kbd>S</kbd> (Face mode).</li>
+          <li>Hold <kbd>Shift</kbd> and click 3 faces.</li>
+          <li>Press <kbd>T</kbd> (Extrude) and push in slightly.</li>
         </ol>
-
-        <p class="small">If your extrudes go sideways: orbit your camera and try again more slowly.</p>
-      </div>
-
-      <div>
-        <p><strong>Make it look smooth (quick wins):</strong></p>
-        <ul>
-          <li>Press <kbd>4</kbd>–<kbd>7</kbd> to raise the <strong>subdivision level</strong> (more smoothing).</li>
-          <li>Press <kbd>K</kbd> to toggle <strong>smooth vs flat shading</strong>.</li>
-        </ul>
-
-        <div class="media">
-          <div class="ph">
-            <strong>Optional screenshot placeholder</strong><br/>
-            Add: “Extrude then Scale steps” or “Subdivision + smooth shading”.
-          </div>
-        </div>
-      </div>
-
-      <details class="notes" style="grid-column:1/-1;">
-        <summary>Teacher notes</summary>
-        <ul>
-          <li>Keep students from over-smoothing too early (high subdivision can lag).</li>
-          <li>Success is a recognisable silhouette, not perfection.</li>
-        </ul>
       </details>
     </div>
 
     <div class="check">
       <label><input type="checkbox" class="kc" data-step="6" />
-        Knowledge Check: I understand the pattern “Extrude then Scale” to shape the neck and head.
+        I can make a sphere ball and place it near the lane.
       </label>
       <div class="status" id="status-6"></div>
     </div>
@@ -731,60 +620,34 @@
   </section>
 
   <!-- STEP 7 -->
-  <section class="step" id="step-7" data-title="Make the bowling ball">
+  <section class="step" id="step-7" data-title="Make the lane">
     <div class="stephead">
       <div class="stepnum">
         <div class="badge">7</div>
         <div>
-          <h3>Making the Bowling Ball</h3>
-          <div class="stepmeta">Start from a sphere primitive</div>
+          <h3>Bowling lane</h3>
+          <div class="stepmeta">Make a long flat surface</div>
         </div>
       </div>
     </div>
 
-    <div class="content grid two">
-      <div>
-        <ol>
-          <li>Switch to <strong>Object mode</strong> with <kbd>A</kbd>.</li>
-          <li>Create a <strong>Sphere</strong> (primitive tool).</li>
-          <li>Use <kbd>W</kbd> to place it near the lane and slightly above the floor.</li>
-          <li>Use <kbd>E</kbd> to scale it to a sensible size (smaller than the pin base).</li>
-        </ol>
+    <div class="content">
+      <ol>
+        <li>Press <kbd>A</kbd> (Object mode).</li>
+        <li>Add a <strong>Plane</strong> (or Grid).</li>
+        <li>Press <kbd>E</kbd> (Scale) and stretch it into a long lane.</li>
+        <li>Use <kbd>W</kbd> (Move) to put it under your pin and ball.</li>
+      </ol>
 
-        <div class="callout">
-          <strong>Quick polish:</strong>
-          <div>Try <kbd>K</kbd> (smooth shading) and a moderate subdivision level (<kbd>4</kbd> or <kbd>5</kbd>).</div>
-        </div>
-      </div>
-
-      <div>
-        <p><strong>Optional: finger holes</strong></p>
-        <ol>
-          <li>Press <kbd>S</kbd> for <strong>Polygon mode</strong>.</li>
-          <li>Hold <kbd>Shift</kbd> and click 3 small faces where holes should go.</li>
-          <li>Press <kbd>T</kbd> (extrude) and push <em>inwards</em> slightly.</li>
-        </ol>
-
-        <div class="media">
-          <div class="ph">
-            <strong>Optional screenshot placeholder</strong><br/>
-            Add: “Select 3 faces → extrude inward”.
-          </div>
-        </div>
-      </div>
-
-      <details class="notes" style="grid-column:1/-1;">
-        <summary>Teacher notes</summary>
-        <ul>
-          <li>If holes look messy: undo and skip holes. A clean ball is fine.</li>
-          <li>Encourage subtle extrude depth.</li>
-        </ul>
+      <details class="hint">
+        <summary>Hint: keeping it tidy</summary>
+        <p>While moving objects, hold <kbd>X</kbd> to snap to the grid.</p>
       </details>
     </div>
 
     <div class="check">
       <label><input type="checkbox" class="kc" data-step="7" />
-        Knowledge Check: I know how to multi-select faces (Shift) and use Extrude to create simple holes.
+        I can create a plane and scale it into a long lane.
       </label>
       <div class="status" id="status-7"></div>
     </div>
@@ -796,51 +659,40 @@
   </section>
 
   <!-- STEP 8 -->
-  <section class="step" id="step-8" data-title="Build the lane + duplicate pins">
+  <section class="step" id="step-8" data-title="Duplicate pins (10)">
     <div class="stephead">
       <div class="stepnum">
         <div class="badge">8</div>
         <div>
-          <h3>Setting Up the Lane</h3>
-          <div class="stepmeta">A long plane + a triangle of 10 pins</div>
+          <h3>Make 10 pins</h3>
+          <div class="stepmeta">Clone and arrange them</div>
         </div>
       </div>
     </div>
 
     <div class="content">
       <ol>
-        <li>Switch to <strong>Object mode</strong> (<kbd>A</kbd>).</li>
-        <li>Create a <strong>Plane/Grid</strong> primitive for the lane.</li>
-        <li>Use <kbd>E</kbd> (scale) to stretch it into a long lane shape (mostly along Y).</li>
-        <li>Select your bowling pin.</li>
-        <li>Press <kbd>Space</kbd> to <strong>clone</strong> (duplicate) it.</li>
-        <li>Move the new pin into position. Repeat until you have <strong>10 pins</strong> in a triangle.</li>
+        <li>Press <kbd>A</kbd> (Object mode).</li>
+        <li>Click your pin.</li>
+        <li>Press <kbd>Space</kbd> to <strong>clone</strong> (duplicate).</li>
+        <li>Move the new pin into place.</li>
+        <li>Repeat until you have <strong>10 pins</strong> in a triangle at the end of the lane.</li>
       </ol>
 
       <div class="callout">
-        <strong>Neat alignment tip:</strong>
-        <div>Hold <kbd>X</kbd> while moving to snap to the grid. This helps line up pins neatly.</div>
+        <strong>Triangle idea:</strong>
+        <div>1 pin at the front, then 2 behind, then 3, then 4 (total 10).</div>
       </div>
 
-      <div class="media">
-        <div class="ph">
-          <strong>Optional screenshot placeholder</strong><br/>
-          Add: “Lane scaled long” + “10 pin triangle”.
-        </div>
-      </div>
-
-      <details class="notes">
-        <summary>Teacher notes</summary>
-        <ul>
-          <li>Don’t obsess about perfect real-world measurements — focus on layout.</li>
-          <li>If pin cloning gets weird: copy/paste (<kbd>Ctrl</kbd>+<kbd>C</kbd>, <kbd>Ctrl</kbd>+<kbd>V</kbd>).</li>
-        </ul>
+      <details class="hint">
+        <summary>Hint: my clone is on top of the old one</summary>
+        <p>After pressing <kbd>Space</kbd>, move it immediately so you can see the copy.</p>
       </details>
     </div>
 
     <div class="check">
       <label><input type="checkbox" class="kc" data-step="8" />
-        Knowledge Check: I can clone objects and arrange 10 pins into a triangle formation.
+        I can clone my pin and arrange 10 pins into a triangle.
       </label>
       <div class="status" id="status-8"></div>
     </div>
@@ -852,95 +704,78 @@
   </section>
 
   <!-- STEP 9 -->
-  <section class="step" id="step-9" data-title="Final check + export">
+  <section class="step" id="step-9" data-title="Finish + save">
     <div class="stephead">
       <div class="stepnum">
         <div class="badge">9</div>
         <div>
-          <h3>Final Project Check & Save/Export</h3>
-          <div class="stepmeta">Make it presentable and keep your work</div>
+          <h3>Finish and keep your work</h3>
+          <div class="stepmeta">Make it look good and save/export</div>
         </div>
       </div>
     </div>
 
-    <div class="content grid two">
-      <div>
-        <p><strong>Final check:</strong></p>
-        <ul>
-          <li>Can you see a lane, pins, and a ball?</li>
-          <li>Is everything sitting roughly on the “floor” (not floating)?</li>
-          <li>Does it look clean from a nice camera angle?</li>
-        </ul>
+    <div class="content">
+      <p><strong>Final checklist:</strong></p>
+      <ul>
+        <li>Lane is visible and flat.</li>
+        <li>10 pins are standing at the end.</li>
+        <li>Ball is near the lane.</li>
+      </ul>
 
-        <div class="callout">
-          <strong>Quick “looks better” buttons:</strong>
-          <div>
-            <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> (render mode) •
-            <kbd>4</kbd><kbd>5</kbd> (moderate smoothing) •
-            <kbd>K</kbd> (smooth shading)
-          </div>
+      <div class="callout">
+        <strong>Quick “looks better” keys:</strong>
+        <div>
+          Render mode: <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> •
+          Smoothing: <kbd>4</kbd> or <kbd>5</kbd> •
+          Smooth shading: <kbd>K</kbd> •
+          Light: <kbd>L</kbd>
         </div>
       </div>
 
-      <div>
-        <p><strong>Make it brighter:</strong></p>
-        <ul>
-          <li>Press <kbd>L</kbd> to toggle the camera emitting light (on/off).</li>
-        </ul>
+      <p><strong>Keep your work:</strong></p>
+      <ul>
+        <li>If you can export: export as <strong>OBJ</strong> or <strong>STL</strong>.</li>
+        <li>If export is blocked: take a screenshot of your best view.</li>
+      </ul>
 
-        <p><strong>Save/Export (choose one):</strong></p>
+      <details class="hint">
+        <summary>Extension (if you finish early)</summary>
         <ul>
-          <li><strong>Export a model file:</strong> look for an <em>Export</em> option and export as <strong>OBJ</strong> or <strong>STL</strong>.</li>
-          <li><strong>Take a screenshot:</strong> capture your best view if export is blocked.</li>
-        </ul>
-
-        <div class="media">
-          <div class="ph">
-            <strong>Optional screenshot placeholder</strong><br/>
-            Add: “Export menu” or “Final view”.
-          </div>
-        </div>
-      </div>
-
-      <details class="notes" style="grid-column:1/-1;">
-        <summary>Teacher notes</summary>
-        <ul>
-          <li>School network restrictions vary: if export fails, accept screenshots.</li>
-          <li>Extension: add gutters, lane markings, or colour materials.</li>
+          <li>Add gutter rails.</li>
+          <li>Add lane markings (thin rectangles).</li>
+          <li>Colour the ball and pins if materials/colours are available.</li>
         </ul>
       </details>
     </div>
 
     <div class="check">
       <label><input type="checkbox" class="kc" data-step="9" />
-        Knowledge Check: I completed the scene and I can keep my work via export or screenshot.
+        I finished my bowling scene and I can keep it (export or screenshot).
       </label>
       <div class="status" id="status-9"></div>
     </div>
 
     <div class="navrow">
       <a class="navbtn" href="#step-8">◀ Back</a>
-      <a class="navbtn" href="#top">↺ Restart</a>
+      <a class="navbtn" href="#top">↺ Top</a>
     </div>
   </section>
 
   <footer>
-    <p>
-      Tip: If you want me to insert your actual screenshots/videos, paste the links and tell me which step they belong to.
-    </p>
+    <p>Done? Show your final view to your teacher.</p>
   </footer>
 </div>
 
 <script>
   (function(){
-    const STORAGE_KEY = "figuro_bowling_kc_v1";
+    const STORAGE_KEY = "figuro_bowling_kc_pupil_v1";
     const THEME_KEY = "figuro_bowling_theme_v1";
-    const NOTES_KEY = "figuro_bowling_notes_v1";
 
     const steps = Array.from(document.querySelectorAll("section.step"));
     const jump = document.getElementById("jump");
     const theme = document.getElementById("theme");
-    const toggleNotes = document.getElementById("toggleNotes");
+    const reset = document.getElementById("reset");
 
     const progressText = document.getElementById("progressText");
     const progressBar = document.getElementById("progressBar");
@@ -953,7 +788,9 @@
 
     // Load saved knowledge checks
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-    document.querySelectorAll("input.kc").forEach(cb => {
+    const checks = Array.from(document.querySelectorAll("input.kc"));
+
+    checks.forEach(cb => {
       const n = cb.getAttribute("data-step");
       cb.checked = !!saved[n];
       setStatus(n, cb.checked);
@@ -968,7 +805,7 @@
     function setStatus(stepNum, checked){
       const el = document.getElementById(`status-${stepNum}`);
       if(!el) return;
-      el.textContent = checked ? "✓ Logged" : "Not yet";
+      el.textContent = checked ? "✓ Saved" : "Not yet";
       el.style.color = checked ? "var(--good)" : "var(--muted)";
     }
 
@@ -979,7 +816,7 @@
         if(saved[i]) done++;
       }
       const pct = Math.round((done/total)*100);
-      progressText.textContent = `Progress: ${done}/${total} checks complete`;
+      progressText.textContent = `Progress: ${done}/${total} ticks`;
       progressBar.style.width = pct + "%";
     }
     updateProgress();
@@ -1002,20 +839,16 @@
       localStorage.setItem(THEME_KEY, e.target.value);
     });
 
-    // Notes toggle (open/close all)
-    let notesOpen = localStorage.getItem(NOTES_KEY) === "1";
-    applyNotes(notesOpen);
-
-    toggleNotes.addEventListener("click", () => {
-      notesOpen = !notesOpen;
-      applyNotes(notesOpen);
-      localStorage.setItem(NOTES_KEY, notesOpen ? "1" : "0");
+    // Reset ticks
+    reset.addEventListener("click", () => {
+      if(!confirm("Reset all ticks on this device?")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      checks.forEach(cb => cb.checked = false);
+      for(let i=1;i<=steps.length;i++){
+        setStatus(String(i), false);
+      }
+      updateProgress();
     });
-
-    function applyNotes(open){
-      document.querySelectorAll("details.notes").forEach(d => d.open = open);
-      toggleNotes.textContent = open ? "Hide notes" : "Show notes";
-    }
 
     // Update jump dropdown when scrolling (best-effort)
     const observer = new IntersectionObserver((entries) => {

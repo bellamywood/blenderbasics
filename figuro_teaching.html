@@ -1,0 +1,1033 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Figuro 3D: Bowling Alley Project (KS3/KS4 Enrichment)</title>
+  <meta name="description" content="Step-by-step KS3/KS4 enrichment worksheet for creating a bowling alley model in Figuro.io (online 3D modelling)." />
+  <style>
+    :root{
+      /* Default theme (Canva Light-ish) */
+      --bg: #f7f7fb;
+      --surface: #ffffff;
+      --surface-2: #f1f3f7;
+      --text: #111827;
+      --muted: #4b5563;
+      --border: #e5e7eb;
+
+      --accent: #00c4cc;
+      --accent-2: #7c3aed;
+
+      --good: #16a34a;
+      --warn: #f59e0b;
+
+      --shadow: 0 10px 30px rgba(0,0,0,.08);
+      --radius: 16px;
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    /* Theme overrides */
+    [data-theme="pastel"]{
+      --bg:#fbf7ff; --surface:#ffffff; --surface-2:#f5efff;
+      --text:#1f1147; --muted:#5b4b7a; --border:#eadcff;
+      --accent:#ff7aa2; --accent-2:#7c5cff;
+      --shadow:0 12px 28px rgba(124,92,255,.12);
+    }
+    [data-theme="blender-dark"]{
+      --bg:#0f1115; --surface:#151922; --surface-2:#10131a;
+      --text:#e7e9ee; --muted:#a4adbd; --border:#2a3140;
+      --accent:#f5792a; --accent-2:#00a7ff;
+      --shadow:0 16px 40px rgba(0,0,0,.55);
+    }
+    [data-theme="google"]{
+      --bg:#ffffff; --surface:#ffffff; --surface-2:#f3f4f6;
+      --text:#111827; --muted:#4b5563; --border:#e5e7eb;
+      --accent:#1a73e8; --accent-2:#34a853; /* blue + green */
+    }
+    [data-theme="twitch"]{
+      --bg:#0e0a14; --surface:#151022; --surface-2:#0f0b18;
+      --text:#f3f0ff; --muted:#c7bff0; --border:#2b2142;
+      --accent:#9146ff; --accent-2:#f0b90b;
+      --shadow:0 16px 46px rgba(0,0,0,.6);
+    }
+    [data-theme="dark"]{
+      --bg:#0b1220; --surface:#0f1b2f; --surface-2:#0b1628;
+      --text:#e8eefc; --muted:#b6c2e1; --border:#22314a;
+      --accent:#38bdf8; --accent-2:#22c55e;
+      --shadow:0 16px 46px rgba(0,0,0,.6);
+    }
+    [data-theme="canva-light"]{
+      --bg:#f7f7fb; --surface:#ffffff; --surface-2:#f1f3f7;
+      --text:#111827; --muted:#4b5563; --border:#e5e7eb;
+      --accent:#00c4cc; --accent-2:#7c3aed;
+    }
+
+    *{ box-sizing:border-box; }
+    html{ scroll-behavior:smooth; }
+    body{
+      margin:0;
+      background: radial-gradient(1000px 600px at 15% 0%, rgba(124,92,255,.12), transparent 60%),
+                  radial-gradient(900px 550px at 85% 5%, rgba(0,196,204,.10), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+      line-height:1.5;
+    }
+    a{ color:inherit; text-decoration: none; }
+    a.link{ text-decoration: underline; text-underline-offset: 3px; }
+    .wrap{ max-width: 980px; margin: 0 auto; padding: 20px 16px 80px; }
+
+    header.site{
+      position: sticky; top:0; z-index:20;
+      backdrop-filter: blur(10px);
+      background: color-mix(in srgb, var(--bg) 75%, transparent);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar{
+      max-width: 980px; margin:0 auto; padding: 10px 16px;
+      display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    }
+    .brand{
+      display:flex; align-items:baseline; gap:10px; flex: 1 1 auto;
+      min-width: 240px;
+    }
+    .brand h1{ font-size: 16px; margin:0; letter-spacing:.2px; }
+    .brand .pill{
+      font-size:12px; padding:4px 10px; border-radius:999px;
+      background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 22%, transparent),
+                                        color-mix(in srgb, var(--accent-2) 18%, transparent));
+      border:1px solid var(--border);
+      color: color-mix(in srgb, var(--text) 92%, var(--muted));
+      white-space:nowrap;
+    }
+    .controls{
+      display:flex; align-items:center; gap:10px; flex: 0 0 auto;
+    }
+    select, button{
+      border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 88%, transparent);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 9px 10px;
+      font-size: 14px;
+    }
+    button{
+      cursor:pointer;
+      transition: transform .06s ease, border-color .12s ease, background .12s ease;
+    }
+    button:active{ transform: translateY(1px); }
+    button.primary{
+      border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+      background: linear-gradient(135deg,
+        color-mix(in srgb, var(--accent) 22%, var(--surface)),
+        color-mix(in srgb, var(--accent-2) 18%, var(--surface)));
+    }
+
+    .hero{
+      padding: 22px 0 10px;
+    }
+    .hero h2{
+      margin: 12px 0 6px;
+      font-size: 34px;
+      line-height:1.15;
+      letter-spacing: -0.6px;
+    }
+    .hero p{ margin: 8px 0; color: var(--muted); font-size: 16px; }
+    .meta{
+      display:flex; flex-wrap:wrap; gap:8px;
+      margin: 14px 0 0;
+    }
+    .tag{
+      font-size: 13px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
+      border:1px solid var(--border);
+      color: color-mix(in srgb, var(--text) 92%, var(--muted));
+    }
+
+    .progress{
+      margin: 18px 0 12px;
+      padding: 14px;
+      border:1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 90%, transparent);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      display:flex; gap:12px; align-items:center; flex-wrap:wrap;
+    }
+    .bar{
+      flex: 1 1 260px;
+      height: 10px; border-radius: 999px;
+      background: color-mix(in srgb, var(--surface-2) 85%, transparent);
+      border: 1px solid var(--border);
+      overflow:hidden;
+    }
+    .bar > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    }
+    .progress strong{ font-size: 14px; }
+    .progress span{ color: var(--muted); font-size: 14px; }
+
+    section.step{
+      scroll-margin-top: 80px;
+      margin: 18px 0;
+      padding: 18px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
+      box-shadow: var(--shadow);
+    }
+    .stephead{
+      display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      align-items:flex-start;
+      margin-bottom: 10px;
+    }
+    .stepnum{
+      display:flex; gap:10px; align-items:center;
+    }
+    .badge{
+      width: 36px; height: 36px; border-radius: 12px;
+      display:grid; place-items:center;
+      background: linear-gradient(135deg,
+        color-mix(in srgb, var(--accent) 28%, var(--surface)),
+        color-mix(in srgb, var(--accent-2) 20%, var(--surface)));
+      border: 1px solid var(--border);
+      font-weight: 700;
+    }
+    .stephead h3{
+      margin:0;
+      font-size: 20px;
+      letter-spacing: -0.2px;
+    }
+    .stepmeta{
+      margin-top:2px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .content p{ margin: 10px 0; }
+    .content ul{ margin: 8px 0 8px 18px; }
+    .content li{ margin: 6px 0; }
+    .callout{
+      margin: 12px 0;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: linear-gradient(135deg,
+        color-mix(in srgb, var(--accent) 10%, var(--surface)),
+        color-mix(in srgb, var(--accent-2) 8%, var(--surface)));
+    }
+    .callout strong{ display:block; margin-bottom: 6px; }
+    kbd{
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--surface-2) 70%, transparent);
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 820px){
+      .grid.two{ grid-template-columns: 1fr 1fr; }
+    }
+
+    details.notes{
+      margin-top: 12px;
+      border: 1px dashed color-mix(in srgb, var(--border) 80%, var(--muted));
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
+    }
+    details.notes summary{
+      cursor:pointer;
+      font-weight:600;
+      color: color-mix(in srgb, var(--text) 92%, var(--muted));
+    }
+    details.notes p, details.notes ul{ color: var(--muted); }
+
+    .media{
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--surface-2) 70%, transparent);
+      overflow:hidden;
+    }
+    .media .ph{
+      padding: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .media .ph code{
+      font-family: var(--mono);
+      font-size: 13px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 85%, transparent);
+    }
+
+    .check{
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      display:flex; align-items:center; justify-content:space-between;
+      gap: 10px; flex-wrap:wrap;
+    }
+    .check label{
+      display:flex; align-items:center; gap:10px;
+      font-weight: 600;
+    }
+    .check input[type="checkbox"]{
+      width: 18px; height: 18px;
+      accent-color: var(--accent);
+    }
+    .check .status{
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .navrow{
+      margin-top: 14px;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px; flex-wrap:wrap;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .navbtn{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
+    }
+    .navbtn:hover{
+      border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+    }
+    footer{
+      margin-top: 26px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align:center;
+    }
+    .small{ font-size: 13px; color: var(--muted); }
+  </style>
+</head>
+
+<body data-theme="canva-light">
+<header class="site" aria-label="Top navigation">
+  <div class="topbar">
+    <div class="brand">
+      <h1>Figuro 3D: Bowling Alley Project</h1>
+      <span class="pill">KS3 / KS4 • Enrichment • Step-by-step</span>
+    </div>
+
+    <div class="controls">
+      <select id="jump" aria-label="Jump to a step"></select>
+      <select id="theme" aria-label="Theme">
+        <option value="pastel">Pastel</option>
+        <option value="blender-dark">Blender Dark</option>
+        <option value="google">Google</option>
+        <option value="twitch">Twitch</option>
+        <option value="dark">Dark Mode</option>
+        <option value="canva-light" selected>Canva Light</option>
+      </select>
+      <button id="toggleNotes" class="primary" type="button">Show notes</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="hero" id="top">
+    <h2>Create Your Own Bowling Alley (in Figuro.io)</h2>
+    <p>
+      You’ll build a <strong>bowling pin</strong>, a <strong>bowling ball</strong>, and a <strong>bowling lane</strong> using Figuro — a free online 3D modeller.
+      Work through the steps in order and tick each knowledge check.
+    </p>
+    <div class="meta">
+      <span class="tag">Outcome: 3D model (OBJ/STL) or screenshot</span>
+      <span class="tag">Suggested time: 45–60 mins</span>
+      <span class="tag">Rule: Don’t jump ahead — follow the steps</span>
+    </div>
+
+    <div class="progress" role="status" aria-live="polite">
+      <div>
+        <strong id="progressText">Progress: 0/9 checks complete</strong><br/>
+        <span class="small">Your ticks are saved on this device.</span>
+      </div>
+      <div class="bar" aria-hidden="true"><div id="progressBar"></div></div>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <section class="step" id="step-1" data-title="Welcome to 3D modelling">
+    <div class="stephead">
+      <div class="stepnum">
+        <div class="badge">1</div>
+        <div>
+          <h3>Welcome to 3D Modelling!</h3>
+          <div class="stepmeta">What you’re doing today</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <ul>
+        <li><strong>What is Figuro?</strong> A browser-based tool for making 3D models using polygons (faces/edges/vertices).</li>
+        <li><strong>Our goal:</strong> Build a bowling pin, a bowling ball, and a lane in one scene.</li>
+        <li><strong>Today’s rule:</strong> Follow the steps carefully. If you get stuck, re-read the last instruction and ask your partner.</li>
+      </ul>
+
+      <details class="notes">
+        <summary>Teacher notes (30 seconds)</summary>
+        <ul>
+          <li>Quick demo: orbit / pan / zoom, then move a cube.</li>
+          <li>Keep it “one tool at a time”. Prevent random clicking.</li>
+          <li>Success criteria: Pin + ball + lane visible and positioned.</li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="check">
+      <label><input type="checkbox" class="kc" data-step="1" />
+        Knowledge Check: I know I am using Figuro to create 3D objects for a scene.
+      </label>
+      <div class="status" id="status-1"></div>
+    </div>
+
+    <div class="navrow">
+      <a class="navbtn" href="#top">↺ Restart</a>
+      <a class="navbtn" href="#step-2">Next ▶</a>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step" id="step-2" data-title="The main areas of Figuro">
+    <div class="stephead">
+      <div class="stepnum">
+        <div class="badge">2</div>
+        <div>
+          <h3>The Main Areas of Figuro</h3>
+          <div class="stepmeta">Where things live on the screen</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content grid two">
+      <div>
+        <p>Most of your time will be split across these areas:</p>
+        <ul>
+          <li><strong>3D Viewport:</strong> The main stage where you see and edit your model.</li>
+          <li><strong>Tool shortcuts:</strong> Use keys like <kbd>W</kbd> <kbd>E</kbd> <kbd>R</kbd> for transform tools and more.</li>
+          <li><strong>Mode shortcuts:</strong> Switch what you’re editing (object vs faces/edges/vertices) using <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> <kbd>F</kbd> <kbd>G</kbd>.</li>
+          <li><strong>On-screen controls:</strong> Many tools show a gizmo and/or numeric fields you can tweak.</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Behaviour to learn:</strong>
+          <div>Viewport first → choose the correct <em>mode</em> → choose the correct <em>tool</em> → then edit.</div>
+        </div>
+      </div>
+
+      <div class="media">
+        <div class="ph">
+          <strong>Optional screenshot placeholder</strong><br/>
+          If you want a picture here later, replace this box with an <code>&lt;img&gt;</code> (e.g. “Figuro interface overview”).<br/><br/>
+          Tip: you can also embed a short help video with <code>&lt;iframe&gt;</code> if YouTube embeds aren’t blocked.
+        </div>
+      </div>
+
+      <details class="notes" style="grid-column:1/-1;">
+        <summary>Teacher notes</summary>
+        <ul>
+          <li>Students often confuse “tool” and “mode”. Keep repeating: <em>mode decides what you edit</em>.</li>
+          <li>If they can’t select faces, they’re in the wrong mode.</li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="check">
+      <label><input type="checkbox" class="kc" data-step="2" />
+        Knowledge Check: I understand the 3D Viewport is the main area where I build my models.
+      </label>
+      <div class="status" id="status-2"></div>
+    </div>
+
+    <div class="navrow">
+      <a class="navbtn" href="#step-1">◀ Back</a>
+      <a class="navbtn" href="#step-3">Next ▶</a>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="step" id="step-3" data-title="Navigation + 3 axes">
+    <div class="stephead">
+      <div class="stepnum">
+        <div class="badge">3</div>
+        <div>
+          <h3>Navigation and the 3 Axes</h3>
+          <div class="stepmeta">How to move your camera and understand space</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content grid two">
+      <div>
+        <p>Everything in 3D uses three directions (axes):</p>
+        <ul>
+          <li><strong>X:</strong> left ↔ right</li>
+          <li><strong>Y:</strong> forward ↔ backward</li>
+          <li><strong>Z:</strong> up ↔ down</li>
+        </ul>
+
+        <p><strong>Camera controls (mouse):</strong></p>
+        <ul>
+          <li><kbd>Mousewheel</kbd> = zoom</li>
+          <li><kbd>Drag Right Mouse</kbd> = orbit around</li>
+          <li><kbd>Drag Middle Mouse</kbd> = pan</li>
+          <li><kbd>Shift</kbd> + <kbd>Drag Right Mouse</kbd> = pan</li>
+          <li><kbd>Ctrl</kbd> + <kbd>Drag Right Mouse</kbd> = zoom</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Rescue tip:</strong>
+          <div>If you “lose” your model, zoom out, then orbit slowly until you find it again.</div>
+        </div>
+      </div>
+
+      <div>
+        <p><strong>Keyboard navigation (optional):</strong></p>
+        <ul>
+          <li><kbd>Arrow keys</kbd> = navigate camera</li>
+          <li><kbd>Arrow keys</kbd> + <kbd>Drag Right Mouse</kbd> = FPS-style navigation</li>
+        </ul>
+
+        <div class="media">
+          <div class="ph">
+            <strong>Optional: add a diagram</strong><br/>
+            Add an image showing X/Y/Z if you want (many students benefit from a quick visual).
+          </div>
+        </div>
+      </div>
+
+      <details class="notes" style="grid-column:1/-1;">
+        <summary>Teacher notes</summary>
+        <ul>
+          <li>Stop anyone “rage scrolling”. Small movements, then reassess.</li>
+          <li>If laptops lack a middle mouse button, use a mouse where possible.</li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="check">
+      <label><input type="checkbox" class="kc" data-step="3" />
+        Knowledge Check: I can identify that the Z axis represents “Up and Down”.
+      </label>
+      <div class="status" id="status-3"></div>
+    </div>
+
+    <div class="navrow">
+      <a class="navbtn" href="#step-2">◀ Back</a>
+      <a class="navbtn" href="#step-4">Next ▶</a>
+    </div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="step" id="step-4" data-title="Essential tools + shortcuts">
+    <div class="stephead">
+      <div class="stepnum">
+        <div class="badge">4</div>
+        <div>
+          <h3>Essential Keyboard Shortcuts</h3>
+          <div class="stepmeta">The “must know” set for speed and accuracy</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content grid two">
+      <div>
+        <p><strong>Transform tools:</strong></p>
+        <ul>
+          <li><kbd>W</kbd> = Move</li>
+          <li><kbd>E</kbd> = Scale</li>
+          <li><kbd>R</kbd> = Rotate</li>
+        </ul>
+
+        <p><strong>Modes (what you are editing):</strong></p>
+        <ul>
+          <li><kbd>A</kbd> Object mode</li>
+          <li><kbd>S</kbd> Polygon (face) mode</li>
+          <li><kbd>D</kbd> Edge mode</li>
+          <li><kbd>F</kbd> Vertex mode</li>
+          <li><kbd>G</kbd> UV mode (advanced — ignore today)</li>
+        </ul>
+      </div>
+
+      <div>
+        <p><strong>Editing + workflow:</strong></p>
+        <ul>
+          <li><kbd>Space</kbd> = clone (duplicate) selected object(s)</li>
+          <li><kbd>Del</kbd> / <kbd>Backspace</kbd> = delete objects or polygons</li>
+          <li><kbd>Ctrl</kbd> + <kbd>Z</kbd> = undo • <kbd>Ctrl</kbd> + <kbd>Y</kbd> = redo</li>
+          <li><kbd>Shift</kbd> + drag (left mouse) = select multiple items</li>
+          <li><kbd>Esc</kbd> or <kbd>Q</kbd> = deselect</li>
+          <li>Hold <kbd>X</kbd> while moving = snap to grid</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Rendering / smoothing (quick preview):</strong>
+          <div>
+            <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> change render mode •
+            <kbd>4</kbd><kbd>5</kbd><kbd>6</kbd><kbd>7</kbd> change subdivision level •
+            <kbd>K</kbd> toggles smooth vs flat shading • <kbd>L</kbd> toggles camera light
+          </div>
+        </div>
+      </div>
+
+      <details class="notes" style="grid-column:1/-1;">
+        <summary>Teacher notes</summary>
+        <ul>
+          <li>Most problems today are: wrong mode, or using rotate when they meant move.</li>
+          <li>Make “undo is normal” explicit. Encourage frequent undo instead of panic.</li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="check">
+      <label><input type="checkbox" class="kc" data-step="4" />
+        Knowledge Check: I know how to use Move/Scale/Rotate and how to switch to Face (Polygon) mode.
+      </label>
+      <div class="status" id="status-4"></div>
+    </div>
+
+    <div class="navrow">
+      <a class="navbtn" href="#step-3">◀ Back</a>
+      <a class="navbtn" href="#step-5">Next ▶</a>
+    </div>
+  </section>
+
+  <!-- STEP 5 -->
+  <section class="step" id="step-5" data-title="Bowling pin (base)">
+    <div class="stephead">
+      <div class="stepnum">
+        <div class="badge">5</div>
+        <div>
+          <h3>Making the Bowling Pin (Base)</h3>
+          <div class="stepmeta">Start from a cylinder primitive</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <ol>
+        <li><strong>Create a cylinder</strong> using the shapes/primitive tools (look for <em>Cylinder</em>).</li>
+        <li><strong>Low-poly tip:</strong> if you see a setting like “Sides/Segments”, set it to <strong>8</strong>.</li>
+        <li>Use <kbd>W</kbd> (move) to place it on the “floor”.</li>
+        <li>Use <kbd>E</kbd> (scale) to make it roughly pin-sized (short and chunky to start).</li>
+        <li>Press <kbd>S</kbd> to switch into <strong>Polygon (face) mode</strong>.</li>
+        <li>Click the <strong>top face</strong> so it is selected.</li>
+      </ol>
+
+      <div class="media">
+        <div class="ph">
+          <strong>Optional screenshot placeholder</strong><br/>
+          Add your own screenshot of “Create Cylinder / Select top face” here.
+        </div>
+      </div>
+
+      <details class="notes">
+        <summary>Teacher notes</summary>
+        <ul>
+          <li>If they can’t click a face: they’re not in polygon mode.</li>
+          <li>If their cylinder is tiny/huge: zoom first, then scale.</li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="check">
+      <label><input type="checkbox" class="kc" data-step="5" />
+        Knowledge Check: I can create a cylinder and switch to Polygon (face) mode to select the top face.
+      </label>
+      <div class="status" id="status-5"></div>
+    </div>
+
+    <div class="navrow">
+      <a class="navbtn" href="#step-4">◀ Back</a>
+      <a class="navbtn" href="#step-6">Next ▶</a>
+    </div>
+  </section>
+
+  <!-- STEP 6 -->
+  <section class="step" id="step-6" data-title="Shape the pin (extrude + scale)">
+    <div class="stephead">
+      <div class="stepnum">
+        <div class="badge">6</div>
+        <div>
+          <h3>Shaping the Pin</h3>
+          <div class="stepmeta">Use the pattern: Extrude → Scale</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content grid two">
+      <div>
+        <p>To build the pin, we repeat one pattern:</p>
+        <div class="callout">
+          <strong>Pattern:</strong>
+          <div><kbd>T</kbd> Extrude → then <kbd>E</kbd> Scale</div>
+        </div>
+
+        <ol>
+          <li>With the <strong>top face</strong> selected: press <kbd>T</kbd> to use <strong>Extrude</strong>.</li>
+          <li>Pull up a little to extend the body.</li>
+          <li>Press <kbd>E</kbd> to <strong>Scale</strong> the new top face smaller (start forming the neck).</li>
+          <li>Repeat: extrude up → scale in → extrude up → scale slightly out for a rounded head.</li>
+        </ol>
+
+        <p class="small">If your extrudes go sideways: orbit your camera and try again more slowly.</p>
+      </div>
+
+      <div>
+        <p><strong>Make it look smooth (quick wins):</strong></p>
+        <ul>
+          <li>Press <kbd>4</kbd>–<kbd>7</kbd> to raise the <strong>subdivision level</strong> (more smoothing).</li>
+          <li>Press <kbd>K</kbd> to toggle <strong>smooth vs flat shading</strong>.</li>
+        </ul>
+
+        <div class="media">
+          <div class="ph">
+            <strong>Optional screenshot placeholder</strong><br/>
+            Add: “Extrude then Scale steps” or “Subdivision + smooth shading”.
+          </div>
+        </div>
+      </div>
+
+      <details class="notes" style="grid-column:1/-1;">
+        <summary>Teacher notes</summary>
+        <ul>
+          <li>Keep students from over-smoothing too early (high subdivision can lag).</li>
+          <li>Success is a recognisable silhouette, not perfection.</li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="check">
+      <label><input type="checkbox" class="kc" data-step="6" />
+        Knowledge Check: I understand the pattern “Extrude then Scale” to shape the neck and head.
+      </label>
+      <div class="status" id="status-6"></div>
+    </div>
+
+    <div class="navrow">
+      <a class="navbtn" href="#step-5">◀ Back</a>
+      <a class="navbtn" href="#step-7">Next ▶</a>
+    </div>
+  </section>
+
+  <!-- STEP 7 -->
+  <section class="step" id="step-7" data-title="Make the bowling ball">
+    <div class="stephead">
+      <div class="stepnum">
+        <div class="badge">7</div>
+        <div>
+          <h3>Making the Bowling Ball</h3>
+          <div class="stepmeta">Start from a sphere primitive</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content grid two">
+      <div>
+        <ol>
+          <li>Switch to <strong>Object mode</strong> with <kbd>A</kbd>.</li>
+          <li>Create a <strong>Sphere</strong> (primitive tool).</li>
+          <li>Use <kbd>W</kbd> to place it near the lane and slightly above the floor.</li>
+          <li>Use <kbd>E</kbd> to scale it to a sensible size (smaller than the pin base).</li>
+        </ol>
+
+        <div class="callout">
+          <strong>Quick polish:</strong>
+          <div>Try <kbd>K</kbd> (smooth shading) and a moderate subdivision level (<kbd>4</kbd> or <kbd>5</kbd>).</div>
+        </div>
+      </div>
+
+      <div>
+        <p><strong>Optional: finger holes</strong></p>
+        <ol>
+          <li>Press <kbd>S</kbd> for <strong>Polygon mode</strong>.</li>
+          <li>Hold <kbd>Shift</kbd> and click 3 small faces where holes should go.</li>
+          <li>Press <kbd>T</kbd> (extrude) and push <em>inwards</em> slightly.</li>
+        </ol>
+
+        <div class="media">
+          <div class="ph">
+            <strong>Optional screenshot placeholder</strong><br/>
+            Add: “Select 3 faces → extrude inward”.
+          </div>
+        </div>
+      </div>
+
+      <details class="notes" style="grid-column:1/-1;">
+        <summary>Teacher notes</summary>
+        <ul>
+          <li>If holes look messy: undo and skip holes. A clean ball is fine.</li>
+          <li>Encourage subtle extrude depth.</li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="check">
+      <label><input type="checkbox" class="kc" data-step="7" />
+        Knowledge Check: I know how to multi-select faces (Shift) and use Extrude to create simple holes.
+      </label>
+      <div class="status" id="status-7"></div>
+    </div>
+
+    <div class="navrow">
+      <a class="navbtn" href="#step-6">◀ Back</a>
+      <a class="navbtn" href="#step-8">Next ▶</a>
+    </div>
+  </section>
+
+  <!-- STEP 8 -->
+  <section class="step" id="step-8" data-title="Build the lane + duplicate pins">
+    <div class="stephead">
+      <div class="stepnum">
+        <div class="badge">8</div>
+        <div>
+          <h3>Setting Up the Lane</h3>
+          <div class="stepmeta">A long plane + a triangle of 10 pins</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <ol>
+        <li>Switch to <strong>Object mode</strong> (<kbd>A</kbd>).</li>
+        <li>Create a <strong>Plane/Grid</strong> primitive for the lane.</li>
+        <li>Use <kbd>E</kbd> (scale) to stretch it into a long lane shape (mostly along Y).</li>
+        <li>Select your bowling pin.</li>
+        <li>Press <kbd>Space</kbd> to <strong>clone</strong> (duplicate) it.</li>
+        <li>Move the new pin into position. Repeat until you have <strong>10 pins</strong> in a triangle.</li>
+      </ol>
+
+      <div class="callout">
+        <strong>Neat alignment tip:</strong>
+        <div>Hold <kbd>X</kbd> while moving to snap to the grid. This helps line up pins neatly.</div>
+      </div>
+
+      <div class="media">
+        <div class="ph">
+          <strong>Optional screenshot placeholder</strong><br/>
+          Add: “Lane scaled long” + “10 pin triangle”.
+        </div>
+      </div>
+
+      <details class="notes">
+        <summary>Teacher notes</summary>
+        <ul>
+          <li>Don’t obsess about perfect real-world measurements — focus on layout.</li>
+          <li>If pin cloning gets weird: copy/paste (<kbd>Ctrl</kbd>+<kbd>C</kbd>, <kbd>Ctrl</kbd>+<kbd>V</kbd>).</li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="check">
+      <label><input type="checkbox" class="kc" data-step="8" />
+        Knowledge Check: I can clone objects and arrange 10 pins into a triangle formation.
+      </label>
+      <div class="status" id="status-8"></div>
+    </div>
+
+    <div class="navrow">
+      <a class="navbtn" href="#step-7">◀ Back</a>
+      <a class="navbtn" href="#step-9">Next ▶</a>
+    </div>
+  </section>
+
+  <!-- STEP 9 -->
+  <section class="step" id="step-9" data-title="Final check + export">
+    <div class="stephead">
+      <div class="stepnum">
+        <div class="badge">9</div>
+        <div>
+          <h3>Final Project Check & Save/Export</h3>
+          <div class="stepmeta">Make it presentable and keep your work</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content grid two">
+      <div>
+        <p><strong>Final check:</strong></p>
+        <ul>
+          <li>Can you see a lane, pins, and a ball?</li>
+          <li>Is everything sitting roughly on the “floor” (not floating)?</li>
+          <li>Does it look clean from a nice camera angle?</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Quick “looks better” buttons:</strong>
+          <div>
+            <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> (render mode) •
+            <kbd>4</kbd><kbd>5</kbd> (moderate smoothing) •
+            <kbd>K</kbd> (smooth shading)
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <p><strong>Make it brighter:</strong></p>
+        <ul>
+          <li>Press <kbd>L</kbd> to toggle the camera emitting light (on/off).</li>
+        </ul>
+
+        <p><strong>Save/Export (choose one):</strong></p>
+        <ul>
+          <li><strong>Export a model file:</strong> look for an <em>Export</em> option and export as <strong>OBJ</strong> or <strong>STL</strong>.</li>
+          <li><strong>Take a screenshot:</strong> capture your best view if export is blocked.</li>
+        </ul>
+
+        <div class="media">
+          <div class="ph">
+            <strong>Optional screenshot placeholder</strong><br/>
+            Add: “Export menu” or “Final view”.
+          </div>
+        </div>
+      </div>
+
+      <details class="notes" style="grid-column:1/-1;">
+        <summary>Teacher notes</summary>
+        <ul>
+          <li>School network restrictions vary: if export fails, accept screenshots.</li>
+          <li>Extension: add gutters, lane markings, or colour materials.</li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="check">
+      <label><input type="checkbox" class="kc" data-step="9" />
+        Knowledge Check: I completed the scene and I can keep my work via export or screenshot.
+      </label>
+      <div class="status" id="status-9"></div>
+    </div>
+
+    <div class="navrow">
+      <a class="navbtn" href="#step-8">◀ Back</a>
+      <a class="navbtn" href="#top">↺ Restart</a>
+    </div>
+  </section>
+
+  <footer>
+    <p>
+      Tip: If you want me to insert your actual screenshots/videos, paste the links and tell me which step they belong to.
+    </p>
+  </footer>
+</div>
+
+<script>
+  (function(){
+    const STORAGE_KEY = "figuro_bowling_kc_v1";
+    const THEME_KEY = "figuro_bowling_theme_v1";
+    const NOTES_KEY = "figuro_bowling_notes_v1";
+
+    const steps = Array.from(document.querySelectorAll("section.step"));
+    const jump = document.getElementById("jump");
+    const theme = document.getElementById("theme");
+    const toggleNotes = document.getElementById("toggleNotes");
+
+    const progressText = document.getElementById("progressText");
+    const progressBar = document.getElementById("progressBar");
+
+    // Build Jump-to dropdown
+    jump.innerHTML = steps.map((s, i) => {
+      const title = s.getAttribute("data-title") || s.querySelector("h3")?.textContent || `Step ${i+1}`;
+      return `<option value="${s.id}">Jump: ${i+1}) ${title}</option>`;
+    }).join("");
+
+    // Load saved knowledge checks
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    document.querySelectorAll("input.kc").forEach(cb => {
+      const n = cb.getAttribute("data-step");
+      cb.checked = !!saved[n];
+      setStatus(n, cb.checked);
+      cb.addEventListener("change", () => {
+        saved[n] = cb.checked;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+        setStatus(n, cb.checked);
+        updateProgress();
+      });
+    });
+
+    function setStatus(stepNum, checked){
+      const el = document.getElementById(`status-${stepNum}`);
+      if(!el) return;
+      el.textContent = checked ? "✓ Logged" : "Not yet";
+      el.style.color = checked ? "var(--good)" : "var(--muted)";
+    }
+
+    function updateProgress(){
+      const total = steps.length;
+      let done = 0;
+      for(let i=1;i<=total;i++){
+        if(saved[i]) done++;
+      }
+      const pct = Math.round((done/total)*100);
+      progressText.textContent = `Progress: ${done}/${total} checks complete`;
+      progressBar.style.width = pct + "%";
+    }
+    updateProgress();
+
+    // Jump behaviour
+    jump.addEventListener("change", (e) => {
+      const id = e.target.value;
+      const target = document.getElementById(id);
+      if(target) target.scrollIntoView({behavior:"smooth", block:"start"});
+    });
+
+    // Theme persistence
+    const savedTheme = localStorage.getItem(THEME_KEY);
+    if(savedTheme){
+      document.body.setAttribute("data-theme", savedTheme);
+      theme.value = savedTheme;
+    }
+    theme.addEventListener("change", (e) => {
+      document.body.setAttribute("data-theme", e.target.value);
+      localStorage.setItem(THEME_KEY, e.target.value);
+    });
+
+    // Notes toggle (open/close all)
+    let notesOpen = localStorage.getItem(NOTES_KEY) === "1";
+    applyNotes(notesOpen);
+
+    toggleNotes.addEventListener("click", () => {
+      notesOpen = !notesOpen;
+      applyNotes(notesOpen);
+      localStorage.setItem(NOTES_KEY, notesOpen ? "1" : "0");
+    });
+
+    function applyNotes(open){
+      document.querySelectorAll("details.notes").forEach(d => d.open = open);
+      toggleNotes.textContent = open ? "Hide notes" : "Show notes";
+    }
+
+    // Update jump dropdown when scrolling (best-effort)
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter(e => e.isIntersecting)
+        .sort((a,b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if(!visible) return;
+      jump.value = visible.target.id;
+    }, { root: null, threshold: [0.25, 0.5, 0.75] });
+
+    steps.forEach(s => observer.observe(s));
+  })();
+</script>
+</body>
+</html>
